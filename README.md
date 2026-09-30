@@ -97,7 +97,7 @@ Aplikasi ini dirancang menggunakan arsitektur monolith modular dan *Edge functio
      - `NEXT_PUBLIC_SUPABASE_URL`
      - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
      - `SUPABASE_SERVICE_ROLE_KEY`
-     - `JWT_SECRET` (Silakan isi dengan string *hash* rahasia/acak untuk mengamankan *cookies* otentikasi di sisi produksi)
+     - `JWT_SECRET` (Silakan isi dengan string *hash* rahasia/acak untuk mengamankan *cookies* otentikasi di sisi produksi).
 5. Klik **Deploy**.
 
 Vercel akan otomatis melakukan proses *build*. Setelah selesai, proyek dapat langsung diakses melalui URL Vercel yang diberikan. Setiap kali Anda melakukan perubahan dan melakukan *push* ke branch `main`, Vercel akan memperbarui aplikasi Anda (Auto-deployment).
