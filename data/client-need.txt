@@ -1,0 +1,22 @@
+aku ingin sebiuah web yang digunakan untuk memudahkan Asisten praktikum dan praktikan.
+
+asprak dimudahkan dalam hal memberikan nilai kepada praktikan dan manjemen file hasil dari praktikum dan tugas praktikan. 
+
+praktikan dimudahkan dalam hal transparansi nilai dan mudah dalam mengumpulkan file hasil dari praktikum dan tugas.
+
+setiap mahasiswa praktikan bisa melihat tugas tugas yang telah dikumpulkan dan transparansi nilainya, dan juga bisa mengunggah ulang file hasil praktikum dan tugas.
+
+Asisten prakktikum bisa memberikan tenggat waktu menggumpulkan file praktikum dan file tugas. 
+
+mahasiswa praktikan hanya bisa melihat  niali dan tugasnya sendiri karena masuk dengaan NIM. (sengaja tidak perlu kata sandi agar mudah, lagian kurang kerjaan amat kan ngecekin nili temen temennnya)
+
+aku mau web ini dibangun dengan nextjs dan dan adatabase yang nantinya disimpan di supabase.
+
+aku mau web ini tanpa emoji dan tanpa gradien-gradien yang AI banget.
+
+aku mau webnya UI dan UX nya mudah.
+
+gunakan warna warna ini : #BC9601, #46AB50, #EEEEEE, #101010.
+
+sebelum membuat webnya aku mau buat DESIGN.md, PRD.md, SRS.md, SECURITY.md, ARCHITECTURE.md
+
