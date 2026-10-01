@@ -113,11 +113,30 @@ export async function getSubmissions(kelas_id: string, pertemuan: number) {
 
   if (subError) throw new Error(subError.message);
 
+  const filePaths = submissions?.filter(s => s.tipe === "FILE").map(s => s.file_url) || [];
+  let signedUrlsMap: Record<string, string> = {};
+  
+  if (filePaths.length > 0) {
+    const { data: signedUrls, error: signError } = await supabase.storage.from('tugas').createSignedUrls(filePaths, 60 * 60 * 24);
+    if (!signError && signedUrls) {
+      signedUrls.forEach((su, idx) => {
+        signedUrlsMap[filePaths[idx]] = su.signedUrl;
+      });
+    }
+  }
+
   // Group submissions by user
   const result = users.map(user => {
     const userSubs = submissions?.filter(s => s.mahasiswa_id === user.id) || [];
     const hp = userSubs.find(s => s.jenis === "HASIL_PRAKTIKUM");
     const tr = userSubs.find(s => s.jenis === "TUGAS_RUMAH");
+
+    if (hp && hp.tipe === "FILE" && signedUrlsMap[hp.file_url]) {
+      hp.file_url = signedUrlsMap[hp.file_url];
+    }
+    if (tr && tr.tipe === "FILE" && signedUrlsMap[tr.file_url]) {
+      tr.file_url = signedUrlsMap[tr.file_url];
+    }
 
     return {
       mahasiswa: user,

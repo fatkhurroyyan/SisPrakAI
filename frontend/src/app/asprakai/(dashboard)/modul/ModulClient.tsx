@@ -263,10 +263,10 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
             </div>
             
             <div style={{ display: "flex", gap: "12px" }}>
-              <button onClick={() => downloadZip("HASIL_PRAKTIKUM")} disabled={isZipping.hp} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", background: "var(--color-blue)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.15)", transition: "all 0.2s" }}>
+              <button onClick={() => downloadZip("HASIL_PRAKTIKUM")} disabled={isZipping.hp} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", background: "var(--color-green)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.15)", transition: "all 0.2s" }}>
                 {isZipping.hp ? <Loader2 size={18} className="spin" /> : <Download size={18} />} ZIP Hasil Praktikum
               </button>
-              <button onClick={() => downloadZip("TUGAS_RUMAH")} disabled={isZipping.tr} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", background: "var(--color-purple)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.15)", transition: "all 0.2s" }}>
+              <button onClick={() => downloadZip("TUGAS_RUMAH")} disabled={isZipping.tr} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", background: "var(--color-green)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.15)", transition: "all 0.2s" }}>
                 {isZipping.tr ? <Loader2 size={18} className="spin" /> : <Download size={18} />} ZIP Tugas Rumah
               </button>
               <button onClick={exportCSV} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 16px", background: "var(--color-surface-sunken)", border: "1px solid var(--color-border)", borderRadius: "6px", cursor: "pointer", fontWeight: 500 }}>
