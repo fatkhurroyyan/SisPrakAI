@@ -180,6 +180,16 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
     return <div style={{ padding: "var(--space-6)" }}>Belum ada data kelas.</div>;
   }
 
+  // Helper to convert ISO UTC string to local datetime-local format (YYYY-MM-DDThh:mm)
+  const toLocalDatetimeString = (isoString: string | null) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return "";
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().slice(0, 16);
+  };
+
   return (
     <div>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
@@ -329,7 +339,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                     <td style={{ padding: "12px" }}>
                       <input 
                         type="datetime-local" 
-                        value={record.batas_hasil_praktikum ? record.batas_hasil_praktikum.slice(0, 16) : ""}
+                        value={toLocalDatetimeString(record.batas_hasil_praktikum)}
                         onChange={(e) => handleChange(pertemuan, "batas_hasil_praktikum", e.target.value ? new Date(e.target.value).toISOString() : "")}
                         style={{ padding: "8px", borderRadius: "4px", border: "1px solid var(--color-border)", background: "var(--color-surface)", width: "100%" }}
                       />
@@ -337,7 +347,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                     <td style={{ padding: "12px" }}>
                       <input 
                         type="datetime-local" 
-                        value={record.batas_tugas_rumah ? record.batas_tugas_rumah.slice(0, 16) : ""}
+                        value={toLocalDatetimeString(record.batas_tugas_rumah)}
                         onChange={(e) => handleChange(pertemuan, "batas_tugas_rumah", e.target.value ? new Date(e.target.value).toISOString() : "")}
                         style={{ padding: "8px", borderRadius: "4px", border: "1px solid var(--color-border)", background: "var(--color-surface)", width: "100%" }}
                       />
