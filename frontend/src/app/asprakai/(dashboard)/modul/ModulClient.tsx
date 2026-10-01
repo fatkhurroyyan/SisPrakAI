@@ -102,14 +102,40 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
     }
   };
 
-  const getLateness = (submittedAt: string, deadline: string | null) => {
-    if (!deadline) return null;
+  const getLatenessStatus = (submittedAt: string | undefined | null, deadline: string | null) => {
+    if (!submittedAt) return "Tidak mengumpulkan"; // Skor 0
+    if (!deadline) return "Tepat waktu atau lebih awal"; // Fallback if no deadline
+
     const s = new Date(submittedAt).getTime();
     const d = new Date(deadline).getTime();
-    if (s <= d) return null; // not late
+
+    if (s <= d) return "Tepat waktu atau lebih awal"; // Skor 5
+    
     const diffHours = (s - d) / (1000 * 60 * 60);
-    if (diffHours < 24) return `${Math.floor(diffHours)} jam`;
-    return `${Math.floor(diffHours / 24)} hari ${Math.floor(diffHours % 24)} jam`;
+    const diffDays = diffHours / 24;
+
+    if (diffDays <= 1) return "Terlambat ≤ 1 hari"; // Skor 4
+    if (diffDays <= 3) return "Terlambat 2–3 hari"; // Skor 3
+    if (diffDays <= 7) return "Terlambat 4–7 hari"; // Skor 2
+    return "Terlambat > 7 hari"; // Skor 1
+  };
+
+  const formatTimestamp = (dateString: string | undefined | null) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "";
+    
+    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    
+    const dayName = days[d.getDay()];
+    const date = String(d.getDate()).padStart(2, '0');
+    const monthName = months[d.getMonth()];
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    
+    return `${dayName}, ${date} ${monthName} ${year} ${hours}:${minutes}`;
   };
 
   const exportCSV = () => {
@@ -119,9 +145,9 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
       s.mahasiswa.nim,
       s.mahasiswa.nama,
       s.hasil_praktikum?.file_url || "Belum Kumpul",
-      getLateness(s.hasil_praktikum?.created_at, subsPengaturan?.batas_hasil_praktikum) ? "Terlambat" : "Tepat Waktu",
+      getLatenessStatus(s.hasil_praktikum?.created_at, subsPengaturan?.batas_hasil_praktikum),
       s.tugas_rumah?.file_url || "Belum Kumpul",
-      getLateness(s.tugas_rumah?.created_at, subsPengaturan?.batas_tugas_rumah) ? "Terlambat" : "Tepat Waktu"
+      getLatenessStatus(s.tugas_rumah?.created_at, subsPengaturan?.batas_tugas_rumah)
     ]);
     
     const csvContent = "data:text/csv;charset=utf-8," 
@@ -269,34 +295,44 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                     <tr><td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-secondary)" }}>Belum ada data mahasiswa di kelas ini.</td></tr>
                   ) : (
                     submissionsData.map((s, idx) => {
-                      const lateHP = getLateness(s.hasil_praktikum?.created_at, subsPengaturan?.batas_hasil_praktikum);
-                      const lateTR = getLateness(s.tugas_rumah?.created_at, subsPengaturan?.batas_tugas_rumah);
+                      const statusHP = getLatenessStatus(s.hasil_praktikum?.created_at, subsPengaturan?.batas_hasil_praktikum);
+                      const statusTR = getLatenessStatus(s.tugas_rumah?.created_at, subsPengaturan?.batas_tugas_rumah);
                       return (
                         <tr key={idx} style={{ borderBottom: "1px solid var(--color-surface-sunken)" }}>
                           <td style={{ padding: "12px" }} className="tabular-nums">{s.mahasiswa.nim}</td>
                           <td style={{ padding: "12px", fontWeight: 500 }}>{s.mahasiswa.nama}</td>
                           
                           <td style={{ padding: "12px" }}>
-                            {!s.hasil_praktikum ? <span style={{ color: "var(--color-text-secondary)" }}>Belum Kumpul</span> : (
+                            {!s.hasil_praktikum ? (
+                              <div style={{ fontSize: "12px", color: "var(--color-danger)", fontWeight: 500 }}>Tidak mengumpulkan</div>
+                            ) : (
                               <div>
                                 <a href={s.hasil_praktikum.file_url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--color-blue)", textDecoration: "none", fontWeight: 500 }}>
                                   <FileText size={14} /> Lihat File
                                 </a>
-                                <div style={{ fontSize: "11px", marginTop: "4px", color: lateHP ? "var(--color-danger)" : "var(--color-green)", fontWeight: 500 }}>
-                                  {lateHP ? `Terlambat (${lateHP})` : "Tepat Waktu"}
+                                <div style={{ fontSize: "11px", marginTop: "6px", color: "var(--color-text-secondary)", fontWeight: 400 }}>
+                                  {formatTimestamp(s.hasil_praktikum.created_at)}
+                                </div>
+                                <div style={{ fontSize: "11px", marginTop: "4px", color: statusHP.includes("Terlambat") ? "var(--color-danger)" : "var(--color-green)", fontWeight: 500 }}>
+                                  {statusHP}
                                 </div>
                               </div>
                             )}
                           </td>
 
                           <td style={{ padding: "12px" }}>
-                            {!s.tugas_rumah ? <span style={{ color: "var(--color-text-secondary)" }}>Belum Kumpul</span> : (
+                            {!s.tugas_rumah ? (
+                              <div style={{ fontSize: "12px", color: "var(--color-danger)", fontWeight: 500 }}>Tidak mengumpulkan</div>
+                            ) : (
                               <div>
                                 <a href={s.tugas_rumah.file_url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--color-blue)", textDecoration: "none", fontWeight: 500 }}>
                                   <FileText size={14} /> Lihat File
                                 </a>
-                                <div style={{ fontSize: "11px", marginTop: "4px", color: lateTR ? "var(--color-danger)" : "var(--color-green)", fontWeight: 500 }}>
-                                  {lateTR ? `Terlambat (${lateTR})` : "Tepat Waktu"}
+                                <div style={{ fontSize: "11px", marginTop: "6px", color: "var(--color-text-secondary)", fontWeight: 400 }}>
+                                  {formatTimestamp(s.tugas_rumah.created_at)}
+                                </div>
+                                <div style={{ fontSize: "11px", marginTop: "4px", color: statusTR.includes("Terlambat") ? "var(--color-danger)" : "var(--color-green)", fontWeight: 500 }}>
+                                  {statusTR}
                                 </div>
                               </div>
                             )}
