@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ChevronDown, Save, Loader2, CheckCircle, XCircle, RotateCcw } from "lucide-react";
+import { Search, ChevronDown, Save, Loader2, CheckCircle, XCircle, RotateCcw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { getAbsensi, saveAbsensi, resetAbsensi } from "./actions";
 
 type Kelas = {
@@ -34,6 +34,11 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  
+  // Search & Sort state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortColumn, setSortColumn] = useState<"nim" | "nama" | "status" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // Toast state
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" }>({
@@ -142,6 +147,66 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
 
   const filteredMahasiswa = mahasiswaList.filter(m => m.kelas_id === activeKelas);
 
+  const recap = {
+    total: filteredMahasiswa.length,
+    hadir: 0,
+    sakit: 0,
+    izin: 0,
+    dispen: 0,
+    alpa: 0,
+    terlambat: 0
+  };
+
+  filteredMahasiswa.forEach(mhs => {
+    const status = absensi[mhs.id]?.status || "ALPA";
+    if (status === "HADIR") recap.hadir++;
+    else if (status === "SAKIT") recap.sakit++;
+    else if (status === "IZIN") recap.izin++;
+    else if (status === "DISPEN") recap.dispen++;
+    else if (status === "ALPA") recap.alpa++;
+    else if (status === "TERLAMBAT") recap.terlambat++;
+  });
+
+  let processedMahasiswa = [...filteredMahasiswa];
+
+  if (searchQuery) {
+    processedMahasiswa = processedMahasiswa.filter(m => 
+      m.nama.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      m.nim.includes(searchQuery)
+    );
+  }
+
+  if (sortColumn) {
+    processedMahasiswa.sort((a, b) => {
+      let valA = "";
+      let valB = "";
+      
+      if (sortColumn === "nim") {
+        valA = a.nim;
+        valB = b.nim;
+      } else if (sortColumn === "nama") {
+        valA = a.nama;
+        valB = b.nama;
+      } else if (sortColumn === "status") {
+        valA = absensi[a.id]?.status || "ALPA";
+        valB = absensi[b.id]?.status || "ALPA";
+      }
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const handleSort = (column: "nim" | "nama" | "status") => {
+    if (sortColumn === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortOrder("asc");
+    }
+  };
+
   if (kelasList.length === 0) {
     return (
       <div style={{ padding: "var(--space-6)", background: "var(--color-surface-elevated)", border: "1px solid var(--color-border)", borderRadius: "8px" }}>
@@ -198,8 +263,67 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
         ))}
       </div>
 
+      {/* Recap Cards */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+        gap: "var(--space-4)",
+        marginBottom: "var(--space-2)"
+      }}>
+        {[
+          { label: "Total Mhs", value: recap.total, color: "var(--color-surface-elevated)" },
+          { label: "Hadir", value: recap.hadir, color: "var(--color-green-light)", textColor: "var(--color-green)" },
+          { label: "Terlambat", value: recap.terlambat, color: "var(--color-warning-light)", textColor: "var(--color-warning)" },
+          { label: "Sakit", value: recap.sakit, color: "var(--color-gold-light)", textColor: "var(--color-gold-hover)" },
+          { label: "Izin", value: recap.izin, color: "var(--color-gold-light)", textColor: "var(--color-gold-hover)" },
+          { label: "Dispen", value: recap.dispen, color: "var(--color-gold-light)", textColor: "var(--color-gold-hover)" },
+          { label: "Alpa", value: recap.alpa, color: "var(--color-danger-light)", textColor: "var(--color-danger)" },
+        ].map((item, idx) => (
+          <div key={idx} style={{
+            background: item.color,
+            padding: "var(--space-4)",
+            borderRadius: "8px",
+            border: "1px solid var(--color-border)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
+            <span style={{ fontSize: "12px", color: "var(--color-text-secondary)", fontWeight: 500, textTransform: "uppercase" }}>
+              {item.label}
+            </span>
+            <span style={{ fontSize: "24px", fontWeight: 700, color: item.textColor || "var(--color-text)", marginTop: "4px" }}>
+              {item.value}
+            </span>
+          </div>
+        ))}
+      </div>
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--space-4)" }}>
         <h2 style={{ fontSize: "var(--text-h2)" }}>Daftar Presensi</h2>
+        
+        {/* Search Input */}
+        <div style={{ position: "relative", flex: "1 1 200px", maxWidth: "300px" }}>
+          <Search size={18} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-secondary)" }} />
+          <input 
+            type="text"
+            placeholder="Cari NIM atau Nama..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px 12px 10px 38px",
+              borderRadius: "8px",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface-elevated)",
+              outline: "none",
+              fontSize: "14px",
+              transition: "border-color 150ms"
+            }}
+            onFocus={(e) => e.target.style.borderColor = "var(--color-gold)"}
+            onBlur={(e) => e.target.style.borderColor = "var(--color-border)"}
+          />
+        </div>
         
         {/* Dropdown Pertemuan */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
@@ -275,20 +399,44 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
           <thead style={{ background: "var(--color-black)", color: "var(--color-surface)", position: "sticky", top: 0, zIndex: 5 }}>
             <tr>
               <th style={{ padding: "12px", fontWeight: 600, width: "60px" }}>No</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px" }}>NIM</th>
-              <th style={{ padding: "12px", fontWeight: 600 }}>Nama Praktikan</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "350px" }}>Status Kehadiran</th>
+              <th 
+                style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }}
+                onClick={() => handleSort("nim")}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  NIM
+                  {sortColumn === "nim" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
+              <th 
+                style={{ padding: "12px", fontWeight: 600, cursor: "pointer", userSelect: "none" }}
+                onClick={() => handleSort("nama")}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  Nama Praktikan
+                  {sortColumn === "nama" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
+              <th 
+                style={{ padding: "12px", fontWeight: 600, width: "350px", cursor: "pointer", userSelect: "none" }}
+                onClick={() => handleSort("status")}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  Status Kehadiran
+                  {sortColumn === "status" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
-            {filteredMahasiswa.length === 0 ? (
+            {processedMahasiswa.length === 0 ? (
               <tr>
                 <td colSpan={4} style={{ padding: "24px", textAlign: "center", color: "var(--color-text-secondary)" }}>
-                  Tidak ada mahasiswa di kelas ini.
+                  {searchQuery ? "Tidak ada mahasiswa yang cocok dengan pencarian." : "Tidak ada mahasiswa di kelas ini."}
                 </td>
               </tr>
             ) : (
-              filteredMahasiswa.map((mhs, idx) => {
+              processedMahasiswa.map((mhs, idx) => {
                 const record = absensi[mhs.id] || { status: "ALPA" };
                 return (
                   <tr key={mhs.id} style={{ borderBottom: "1px solid var(--color-surface-sunken)" }}>

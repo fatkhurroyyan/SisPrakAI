@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Save, Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Save, Loader2, CheckCircle, XCircle, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { getPenilaian, savePenilaian } from "./actions";
 
 type Kelas = {
@@ -39,6 +39,11 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
   const [penilaian, setPenilaian] = useState<Record<string, PenilaianState>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Search & Sort state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortColumn, setSortColumn] = useState<"nim" | "nama" | "pelaksanaan" | "laporan" | "waktu" | "kehadiran" | "total" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // Toast state
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" }>({
@@ -115,6 +120,61 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
     return mahasiswaList.filter(m => m.kelas_id === activeKelas);
   }, [mahasiswaList, activeKelas]);
 
+  let processedMahasiswa = [...filteredMahasiswa];
+
+  if (searchQuery) {
+    processedMahasiswa = processedMahasiswa.filter(m => 
+      m.nama.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      m.nim.includes(searchQuery)
+    );
+  }
+
+  if (sortColumn) {
+    processedMahasiswa.sort((a, b) => {
+      const recordA = penilaian[a.id] || { pelaksanaan_skor: 0, laporan_skor: 0, waktu_skor: 0, kehadiran_skor: 0, absensi_status: "ALPA" };
+      const recordB = penilaian[b.id] || { pelaksanaan_skor: 0, laporan_skor: 0, waktu_skor: 0, kehadiran_skor: 0, absensi_status: "ALPA" };
+      
+      let valA: string | number = 0;
+      let valB: string | number = 0;
+      
+      if (sortColumn === "nim") {
+        valA = a.nim;
+        valB = b.nim;
+      } else if (sortColumn === "nama") {
+        valA = a.nama;
+        valB = b.nama;
+      } else if (sortColumn === "pelaksanaan") {
+        valA = recordA.pelaksanaan_skor;
+        valB = recordB.pelaksanaan_skor;
+      } else if (sortColumn === "laporan") {
+        valA = recordA.laporan_skor;
+        valB = recordB.laporan_skor;
+      } else if (sortColumn === "waktu") {
+        valA = recordA.waktu_skor;
+        valB = recordB.waktu_skor;
+      } else if (sortColumn === "kehadiran") {
+        valA = recordA.kehadiran_skor;
+        valB = recordB.kehadiran_skor;
+      } else if (sortColumn === "total") {
+        valA = (recordA.pelaksanaan_skor * 0.35 * 20) + (recordA.laporan_skor * 0.25 * 20) + (recordA.waktu_skor * 0.25 * 20) + (recordA.kehadiran_skor * 0.15 * 20);
+        valB = (recordB.pelaksanaan_skor * 0.35 * 20) + (recordB.laporan_skor * 0.25 * 20) + (recordB.waktu_skor * 0.25 * 20) + (recordB.kehadiran_skor * 0.15 * 20);
+      }
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const handleSort = (column: "nim" | "nama" | "pelaksanaan" | "laporan" | "waktu" | "kehadiran" | "total") => {
+    if (sortColumn === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortOrder("asc");
+    }
+  };
+
   if (kelasList.length === 0) {
     return (
       <div style={{ padding: "var(--space-6)", background: "var(--color-surface-elevated)", border: "1px solid var(--color-border)", borderRadius: "8px" }}>
@@ -175,6 +235,29 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--space-4)" }}>
         <h2 style={{ fontSize: "var(--text-h2)" }}>Daftar Penilaian</h2>
         
+        {/* Search Input */}
+        <div style={{ position: "relative", flex: "1 1 200px", maxWidth: "300px" }}>
+          <Search size={18} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-secondary)" }} />
+          <input 
+            type="text"
+            placeholder="Cari NIM atau Nama..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px 12px 10px 38px",
+              borderRadius: "8px",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface-elevated)",
+              outline: "none",
+              fontSize: "14px",
+              transition: "border-color 150ms"
+            }}
+            onFocus={(e) => e.target.style.borderColor = "var(--color-gold)"}
+            onBlur={(e) => e.target.style.borderColor = "var(--color-border)"}
+          />
+        </div>
+        
         {/* Dropdown Pertemuan */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
           <span style={{ fontSize: "var(--text-body-medium)" }}>Pilih Pertemuan:</span>
@@ -207,24 +290,59 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
           <thead style={{ background: "var(--color-black)", color: "var(--color-surface)", position: "sticky", top: 0, zIndex: 5 }}>
             <tr>
               <th style={{ padding: "12px", fontWeight: 600, width: "50px" }}>No</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "130px" }}>NIM</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "300px" }}>Nama Praktikan</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px" }}>Pelaksanaan (35%)</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px" }}>Laporan (25%)</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px" }}>Waktu Kumpul (25%)</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px" }}>Kehadiran (15%)</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "80px", textAlign: "center" }}>Total</th>
+              <th style={{ padding: "12px", fontWeight: 600, width: "130px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("nim")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  NIM
+                  {sortColumn === "nim" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
+              <th style={{ padding: "12px", fontWeight: 600, width: "300px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("nama")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  Nama Praktikan
+                  {sortColumn === "nama" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
+              <th style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("pelaksanaan")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  Pelaksanaan (35%)
+                  {sortColumn === "pelaksanaan" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
+              <th style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("laporan")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  Laporan (25%)
+                  {sortColumn === "laporan" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
+              <th style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("waktu")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  Waktu Kumpul (25%)
+                  {sortColumn === "waktu" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
+              <th style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("kehadiran")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  Kehadiran (15%)
+                  {sortColumn === "kehadiran" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
+              <th style={{ padding: "12px", fontWeight: 600, width: "100px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("total")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", justifyContent: "center" }}>
+                  Total
+                  {sortColumn === "total" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
-            {filteredMahasiswa.length === 0 ? (
+            {processedMahasiswa.length === 0 ? (
               <tr>
                 <td colSpan={8} style={{ padding: "24px", textAlign: "center", color: "var(--color-text-secondary)" }}>
-                  Tidak ada mahasiswa di kelas ini.
+                  {searchQuery ? "Tidak ada mahasiswa yang cocok dengan pencarian." : "Tidak ada mahasiswa di kelas ini."}
                 </td>
               </tr>
             ) : (
-              filteredMahasiswa.map((mhs, idx) => {
+              processedMahasiswa.map((mhs, idx) => {
                 const record = penilaian[mhs.id] || { pelaksanaan_skor: 0, laporan_skor: 0, waktu_skor: 0, kehadiran_skor: 0, absensi_status: "ALPA" };
                 
                 const totalSkor = (record.pelaksanaan_skor * 0.35 * 20) + (record.laporan_skor * 0.25 * 20) + (record.waktu_skor * 0.25 * 20) + (record.kehadiran_skor * 0.15 * 20);
