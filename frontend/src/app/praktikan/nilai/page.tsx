@@ -15,6 +15,42 @@ function calculateKehadiranSkor(status: string, keterlambatan: string | null) {
   return 0;
 }
 
+function getKehadiranDesc(skor: number) {
+  if (skor === 5) return "Hadir tepat waktu";
+  if (skor === 4) return "Terlambat ≤ 10 menit";
+  if (skor === 3) return "Terlambat 11–30 menit";
+  if (skor === 2) return "Terlambat 31–60 menit";
+  if (skor === 1) return "Terlambat > 60 menit";
+  return "Sakit/Izin/Alpa";
+}
+
+function getPelaksanaanDesc(skor: number) {
+  if (skor === 5) return "Menyelesaikan 100% langkah praktikum";
+  if (skor === 4) return "Menyelesaikan 75%–99% langkah";
+  if (skor === 3) return "Menyelesaikan 50%–74% langkah";
+  if (skor === 2) return "Menyelesaikan < 50% langkah";
+  if (skor === 1) return "Hadir namun tidak praktikum";
+  return "Tidak hadir / Tidak dinilai";
+}
+
+function getLaporanDesc(skor: number) {
+  if (skor === 5) return "Laporan sangat lengkap dan benar";
+  if (skor === 4) return "Laporan lengkap, ada sedikit kesalahan";
+  if (skor === 3) return "Laporan kurang lengkap";
+  if (skor === 2) return "Laporan asal-asalan";
+  if (skor === 1) return "Hanya format/cover saja";
+  return "Tidak mengumpulkan";
+}
+
+function getWaktuDesc(skor: number) {
+  if (skor === 5) return "Tepat waktu atau lebih awal";
+  if (skor === 4) return "Terlambat ≤ 1 hari";
+  if (skor === 3) return "Terlambat 2–3 hari";
+  if (skor === 2) return "Terlambat 4–7 hari";
+  if (skor === 1) return "Terlambat > 7 hari";
+  return "Tidak mengumpulkan";
+}
+
 export default async function NilaiPage() {
   const session = await getSession();
   if (!session || session.app_role !== "praktikan") {
@@ -109,10 +145,10 @@ export default async function NilaiPage() {
             <tr>
               <th style={{ padding: "16px", fontWeight: 600, width: "100px" }}>Pertemuan</th>
               <th style={{ padding: "16px", fontWeight: 600 }}>Kehadiran</th>
-              <th style={{ padding: "16px", fontWeight: 600, textAlign: "center" }}>Skor Kehadiran (15%)</th>
-              <th style={{ padding: "16px", fontWeight: 600, textAlign: "center" }}>Skor Pelaksanaan (35%)</th>
-              <th style={{ padding: "16px", fontWeight: 600, textAlign: "center" }}>Laporan Akhir (25%)</th>
-              <th style={{ padding: "16px", fontWeight: 600, textAlign: "center" }}>Jurnal/Waktu (25%)</th>
+              <th style={{ padding: "16px", fontWeight: 600 }}>Kehadiran & Kedisiplinan · 15%</th>
+              <th style={{ padding: "16px", fontWeight: 600 }}>Pelaksanaan Praktikum · 35%</th>
+              <th style={{ padding: "16px", fontWeight: 600 }}>Laporan Praktikum · 25%</th>
+              <th style={{ padding: "16px", fontWeight: 600 }}>Ketepatan Waktu Pengumpulan · 25%</th>
               <th style={{ padding: "16px", fontWeight: 600, textAlign: "center" }}>Total Nilai</th>
             </tr>
           </thead>
@@ -133,11 +169,23 @@ export default async function NilaiPage() {
                     {row.status} {row.status === "TERLAMBAT" && row.keterlambatan ? `(${row.keterlambatan}m)` : ""}
                   </div>
                 </td>
-                <td style={{ padding: "16px", textAlign: "center", fontWeight: 500 }} className="tabular-nums">{row.kehadiranSkor} / 5</td>
-                <td style={{ padding: "16px", textAlign: "center", fontWeight: 500 }} className="tabular-nums">{row.pelaksanaanSkor} / 5</td>
-                <td style={{ padding: "16px", textAlign: "center", fontWeight: 500 }} className="tabular-nums">{row.laporanSkor} / 5</td>
-                <td style={{ padding: "16px", textAlign: "center", fontWeight: 500 }} className="tabular-nums">{row.waktuSkor} / 5</td>
-                <td style={{ padding: "16px", textAlign: "center", fontWeight: 700, color: "var(--color-gold)" }} className="tabular-nums">{row.total.toFixed(2)}</td>
+                <td style={{ padding: "16px" }}>
+                  <div style={{ fontWeight: 600, marginBottom: "4px" }} className="tabular-nums">{row.kehadiranSkor} / 5</div>
+                  <div style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>{getKehadiranDesc(row.kehadiranSkor)}</div>
+                </td>
+                <td style={{ padding: "16px" }}>
+                  <div style={{ fontWeight: 600, marginBottom: "4px" }} className="tabular-nums">{row.pelaksanaanSkor} / 5</div>
+                  <div style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>{getPelaksanaanDesc(row.pelaksanaanSkor)}</div>
+                </td>
+                <td style={{ padding: "16px" }}>
+                  <div style={{ fontWeight: 600, marginBottom: "4px" }} className="tabular-nums">{row.laporanSkor} / 5</div>
+                  <div style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>{getLaporanDesc(row.laporanSkor)}</div>
+                </td>
+                <td style={{ padding: "16px" }}>
+                  <div style={{ fontWeight: 600, marginBottom: "4px" }} className="tabular-nums">{row.waktuSkor} / 5</div>
+                  <div style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>{getWaktuDesc(row.waktuSkor)}</div>
+                </td>
+                <td style={{ padding: "16px", textAlign: "center", fontWeight: 700, color: "var(--color-gold)", fontSize: "16px" }} className="tabular-nums">{row.total.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
