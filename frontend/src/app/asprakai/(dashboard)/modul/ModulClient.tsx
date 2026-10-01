@@ -140,13 +140,11 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
 
   const exportCSV = () => {
     if (!submissionsData.length) return;
-    const headers = ["NIM", "Nama", "Hasil Praktikum", "Status HP", "Tugas Rumah", "Status TR"];
+    const headers = ["NIM", "Nama", "Hasil Praktikum", "Tugas Rumah"];
     const rows = submissionsData.map(s => [
       s.mahasiswa.nim,
       s.mahasiswa.nama,
-      s.hasil_praktikum?.file_url || "Belum Kumpul",
       getLatenessStatus(s.hasil_praktikum?.created_at, subsPengaturan?.batas_hasil_praktikum),
-      s.tugas_rumah?.file_url || "Belum Kumpul",
       getLatenessStatus(s.tugas_rumah?.created_at, subsPengaturan?.batas_tugas_rumah)
     ]);
     
