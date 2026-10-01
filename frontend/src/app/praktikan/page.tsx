@@ -91,7 +91,7 @@ export default async function PraktikanDashboard() {
   return (
     <div>
       <h2 style={{ marginBottom: "var(--space-6)" }}>Selamat Datang, {user?.nama || "Praktikan"}!</h2>
-      <div style={{ display: "grid", gap: "var(--space-6)", gridTemplateColumns: "1fr 1fr" }}>
+      <div style={{ display: "grid", gap: "var(--space-6)", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
         {/* Tugas Terdekat Card */}
         <div style={{ 
           padding: "var(--space-6)", 

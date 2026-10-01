@@ -2,9 +2,9 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 import styles from "./DashboardLayout.module.css";
-import React from "react";
+import React, { useState } from "react";
 
 export interface NavItem {
   label: string;
@@ -31,6 +31,7 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -43,7 +44,11 @@ export function DashboardLayout({
 
   return (
     <div className={styles.container}>
-      <aside className={styles.sidebar}>
+      {isSidebarOpen && (
+        <div className={styles.overlay} onClick={() => setIsSidebarOpen(false)} />
+      )}
+      
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ""}`}>
         <div className={styles.sidebarHeader}>
           {userRole === "asprak" ? (
             <div>
@@ -72,6 +77,7 @@ export function DashboardLayout({
                 key={item.href}
                 href={item.href}
                 className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+                onClick={() => setIsSidebarOpen(false)}
               >
                 {item.icon}
                 <span>{item.label}</span>
@@ -90,7 +96,12 @@ export function DashboardLayout({
 
       <main className={styles.mainContent}>
         <header className={styles.topbar}>
-          <h1 className={styles.pageTitle}>{title}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
+            <button className={styles.mobileMenuBtn} onClick={() => setIsSidebarOpen(true)}>
+              <Menu size={24} />
+            </button>
+            <h1 className={styles.pageTitle}>{title}</h1>
+          </div>
           <div className={styles.topbarActions}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--color-text-secondary)" }}>
               <User size={20} />
