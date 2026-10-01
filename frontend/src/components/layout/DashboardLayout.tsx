@@ -1,0 +1,108 @@
+"use client";
+
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { LogOut, User } from "lucide-react";
+import styles from "./DashboardLayout.module.css";
+import React from "react";
+
+export interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+}
+
+export interface DashboardLayoutProps {
+  children: React.ReactNode;
+  navItems: NavItem[];
+  title: string;
+  userRole: "asprak" | "praktikan";
+  userName?: string;
+  userNim?: string;
+}
+
+export function DashboardLayout({
+  children,
+  navItems,
+  title,
+  userRole,
+  userName,
+  userNim,
+}: DashboardLayoutProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
+
+  return (
+    <div className={styles.container}>
+      <aside className={styles.sidebar}>
+        <div className={styles.sidebarHeader}>
+          {userRole === "asprak" ? (
+            <div>
+              <div style={{ fontSize: "var(--text-h3)" }}>SisPrakAI</div>
+              <div style={{ fontSize: "var(--text-small)", color: "var(--color-text-tertiary)", fontWeight: 400 }}>Asprak Portal</div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: "var(--text-h3)" }} className="tabular-nums">{userNim}</div>
+              <div style={{ fontSize: "var(--text-small)", color: "var(--color-text-tertiary)", fontWeight: 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {userName}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <nav className={styles.sidebarContent}>
+          {navItems.map((item) => {
+            const isBaseRoute = item.href === "/asprakai" || item.href === "/praktikan";
+            const isActive = isBaseRoute
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(item.href + "/");
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className={styles.sidebarFooter}>
+          <button onClick={handleLogout} className={styles.logoutBtn}>
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <main className={styles.mainContent}>
+        <header className={styles.topbar}>
+          <h1 className={styles.pageTitle}>{title}</h1>
+          <div className={styles.topbarActions}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--color-text-secondary)" }}>
+              <User size={20} />
+              <span style={{ fontSize: "var(--text-body-medium)", fontWeight: 500 }}>
+                {userRole === "asprak" ? "Asisten Praktikum" : "Praktikan"}
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <div className={styles.contentArea}>{children}</div>
+      </main>
+    </div>
+  );
+}
