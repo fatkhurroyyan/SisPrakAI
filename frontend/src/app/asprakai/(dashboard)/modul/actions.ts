@@ -120,7 +120,9 @@ export async function getSubmissions(kelas_id: string, pertemuan: number) {
     const { data: signedUrls, error: signError } = await supabase.storage.from('tugas').createSignedUrls(filePaths, 60 * 60 * 24);
     if (!signError && signedUrls) {
       signedUrls.forEach((su, idx) => {
-        signedUrlsMap[filePaths[idx]] = su.signedUrl;
+        if (su.signedUrl) {
+          signedUrlsMap[filePaths[idx]] = su.signedUrl;
+        }
       });
     }
   }
