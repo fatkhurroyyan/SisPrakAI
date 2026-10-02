@@ -6,7 +6,7 @@ const encodedKey = new TextEncoder().encode(secretKey);
 
 export type UserSession = {
   nim: string;
-  role: 'asprak' | 'praktikan';
+  role: 'asprak' | 'praktikan' | 'dosen';
   nama: string;
 };
 
@@ -46,7 +46,7 @@ export async function decrypt(session: string | undefined = '') {
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ['HS256'],
     });
-    return payload as UserSession & { role: string; app_role: 'asprak' | 'praktikan' };
+    return payload as UserSession & { role: string; app_role: 'asprak' | 'praktikan' | 'dosen' };
   } catch (error) {
     return null;
   }

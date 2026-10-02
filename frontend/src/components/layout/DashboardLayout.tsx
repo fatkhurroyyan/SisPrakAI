@@ -16,7 +16,7 @@ export interface DashboardLayoutProps {
   children: React.ReactNode;
   navItems: NavItem[];
   title: string;
-  userRole: "asprak" | "praktikan";
+  userRole: "asprak" | "praktikan" | "dosen";
   userName?: string;
   userNim?: string;
 }
@@ -50,10 +50,10 @@ export function DashboardLayout({
       
       <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ""}`}>
         <div className={styles.sidebarHeader}>
-          {userRole === "asprak" ? (
+          {userRole === "asprak" || userRole === "dosen" ? (
             <div>
               <div style={{ fontSize: "var(--text-h3)" }}>SisPrakAI</div>
-              <div style={{ fontSize: "var(--text-small)", color: "var(--color-text-tertiary)", fontWeight: 400 }}>Asprak Portal</div>
+              <div style={{ fontSize: "var(--text-small)", color: "var(--color-text-tertiary)", fontWeight: 400 }}>{userRole === "dosen" ? "Dosen Portal" : "Asprak Portal"}</div>
             </div>
           ) : (
             <div>
@@ -106,7 +106,7 @@ export function DashboardLayout({
             <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--color-text-secondary)" }}>
               <User size={20} />
               <span style={{ fontSize: "var(--text-body-medium)", fontWeight: 500 }}>
-                {userRole === "asprak" ? "Asisten Praktikum" : "Praktikan"}
+                {userRole === "asprak" ? "Asisten Praktikum" : userRole === "dosen" ? "Dosen" : "Praktikan"}
               </span>
             </div>
           </div>
