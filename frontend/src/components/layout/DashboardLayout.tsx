@@ -67,7 +67,7 @@ export function DashboardLayout({
 
         <nav className={styles.sidebarContent}>
           {navItems.map((item) => {
-            const isBaseRoute = item.href === "/asprakai" || item.href === "/praktikan";
+            const isBaseRoute = item.href === "/asprakai" || item.href === "/praktikan" || item.href === "/dosen";
             const isActive = isBaseRoute
               ? pathname === item.href
               : pathname === item.href || pathname.startsWith(item.href + "/");
