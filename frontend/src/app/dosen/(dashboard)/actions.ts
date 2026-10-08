@@ -23,8 +23,8 @@ export async function getRekapDosen() {
   // 2. Get all modules
   const { data: moduls, error: modulsError } = await supabase
     .from("modul")
-    .select("id, judul")
-    .order("judul");
+    .select("id, judul, nomor")
+    .order("nomor");
   if (modulsError) throw new Error(modulsError.message);
 
   // 3. Get all attendance
@@ -55,39 +55,42 @@ export async function getRekapDosen() {
 
     moduls?.forEach(modul => {
       // Modul Absensi
-      const absenModul = userAbsensi.find(a => a.modul_id === modul.id);
+      const absenModul = userAbsensi.find(a => a.pertemuan === modul.nomor);
       let skorAbsen = 0;
       if (absenModul) {
         if (absenModul.status === 'HADIR') skorAbsen = 5;
-        else if (absenModul.status === 'TERLAMBAT' && absenModul.menit_keterlambatan <= 10) skorAbsen = 4;
-        else if (absenModul.status === 'TERLAMBAT' && absenModul.menit_keterlambatan > 10 && absenModul.menit_keterlambatan <= 30) skorAbsen = 3;
-        else if (absenModul.status === 'TERLAMBAT' && absenModul.menit_keterlambatan > 30 && absenModul.menit_keterlambatan <= 60) skorAbsen = 2;
-        else if (absenModul.status === 'TERLAMBAT' && absenModul.menit_keterlambatan > 60) skorAbsen = 1;
+        else if (absenModul.status === 'TERLAMBAT') {
+            if (absenModul.keterlambatan === '<= 10') skorAbsen = 4;
+            else if (absenModul.keterlambatan === '11-30') skorAbsen = 3;
+            else if (absenModul.keterlambatan === '31-60') skorAbsen = 2;
+            else if (absenModul.keterlambatan === '> 60') skorAbsen = 1;
+            else skorAbsen = 1;
+        }
         skorAbsensiTotal += skorAbsen;
       }
 
       // Modul Penilaian
-      const penModul = userPenilaian.find(p => p.modul_id === modul.id);
+      const penModul = userPenilaian.find(p => p.pertemuan === modul.nomor);
       let nilaiModulAkhir = 0;
       if (penModul) {
-        totalPelaksanaan += penModul.nilai_pelaksanaan || 0;
-        totalLaporan += penModul.nilai_laporan || 0;
-        totalKetepatan += penModul.nilai_ketepatan || 0;
+        totalPelaksanaan += penModul.pelaksanaan_skor || 0;
+        totalLaporan += penModul.laporan_skor || 0;
+        totalKetepatan += penModul.waktu_skor || 0;
 
-        const np = (penModul.nilai_pelaksanaan / 5) * 100;
-        const nl = (penModul.nilai_laporan / 5) * 100;
-        const nk = (penModul.nilai_ketepatan / 5) * 100;
+        const np = ((penModul.pelaksanaan_skor || 0) / 5) * 100;
+        const nl = ((penModul.laporan_skor || 0) / 5) * 100;
+        const nk = ((penModul.waktu_skor || 0) / 5) * 100;
         const na = (skorAbsen / 5) * 100;
         nilaiModulAkhir = (np * 0.35) + (nl * 0.25) + (nk * 0.25) + (na * 0.15);
       }
 
       rekapPerModul[modul.id] = {
         statusAbsen: absenModul?.status || "-",
-        menitKeterlambatan: absenModul?.menit_keterlambatan || 0,
+        menitKeterlambatan: absenModul?.keterlambatan || "",
         skorAbsen,
-        nilaiPelaksanaan: penModul?.nilai_pelaksanaan || 0,
-        nilaiLaporan: penModul?.nilai_laporan || 0,
-        nilaiKetepatan: penModul?.nilai_ketepatan || 0,
+        nilaiPelaksanaan: penModul?.pelaksanaan_skor || 0,
+        nilaiLaporan: penModul?.laporan_skor || 0,
+        nilaiKetepatan: penModul?.waktu_skor || 0,
         totalNilaiModul: Math.round(nilaiModulAkhir)
       };
     });

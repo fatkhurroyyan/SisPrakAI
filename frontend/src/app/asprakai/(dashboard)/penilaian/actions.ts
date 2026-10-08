@@ -69,6 +69,33 @@ export async function getPenilaian(kelasId: string, pertemuan: number) {
     };
   });
 
+  // Fetch pengaturan_modul for deadline
+  const { data: pengaturan } = await supabase
+    .from("pengaturan_modul")
+    .select("batas_waktu")
+    .eq("kelas_id", kelasId)
+    .eq("pertemuan", pertemuan)
+    .single();
+
+  const batasWaktu = pengaturan?.batas_waktu;
+
+  // Fetch pengumpulan_tugas
+  const { data: pengumpulan } = await supabase
+    .from("pengumpulan_tugas")
+    .select("mahasiswa_id, updated_at")
+    .eq("pertemuan", pertemuan)
+    .in("mahasiswa_id", userIds);
+
+  const pengumpulanMap: Record<string, string> = {};
+  if (pengumpulan) {
+    pengumpulan.forEach(p => {
+      // If there are multiple (e.g. HASIL_PRAKTIKUM and TUGAS_RUMAH), we take the latest one
+      if (!pengumpulanMap[p.mahasiswa_id] || new Date(p.updated_at) > new Date(pengumpulanMap[p.mahasiswa_id])) {
+        pengumpulanMap[p.mahasiswa_id] = p.updated_at;
+      }
+    });
+  }
+
   // Combine data
   const result: Record<string, any> = {};
   userIds.forEach(id => {
@@ -76,12 +103,24 @@ export async function getPenilaian(kelasId: string, pertemuan: number) {
     const pnl = penilaianMap[id] || { pelaksanaan_skor: 0, laporan_skor: 0, waktu_skor: 0 };
     const kehadiran_skor = calculateKehadiranSkor(abs.status, abs.keterlambatan);
     
+    let terlambat_hari = null;
+    if (pengumpulanMap[id] && batasWaktu) {
+      const s = new Date(pengumpulanMap[id]).getTime();
+      const d = new Date(batasWaktu).getTime();
+      if (s > d) {
+        terlambat_hari = Math.ceil((s - d) / (1000 * 60 * 60 * 24));
+      } else {
+        terlambat_hari = 0; // Tepat waktu
+      }
+    }
+
     result[id] = {
       pelaksanaan_skor: pnl.pelaksanaan_skor,
       laporan_skor: pnl.laporan_skor,
       waktu_skor: pnl.waktu_skor,
       kehadiran_skor: kehadiran_skor,
       absensi_status: abs.status,
+      terlambat_hari,
       total_skor: (pnl.pelaksanaan_skor * 0.35 * 20) + (pnl.laporan_skor * 0.25 * 20) + (pnl.waktu_skor * 0.25 * 20) + (kehadiran_skor * 0.15 * 20)
     };
   });

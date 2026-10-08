@@ -89,97 +89,110 @@ export default async function PraktikanDashboard() {
   }
 
   return (
-    <div>
-      <h2 style={{ marginBottom: "var(--space-6)" }}>Selamat Datang, {user?.nama || "Praktikan"}!</h2>
-      <div style={{ display: "grid", gap: "var(--space-6)", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
+    <div style={{ padding: "0 0 40px 0" }}>
+      <h2 style={{ fontSize: "var(--text-display)", fontWeight: 700, marginBottom: "8px", letterSpacing: "-0.02em" }}>
+        Halo, {user?.nama || "Praktikan"}
+      </h2>
+      <p style={{ color: "var(--color-text-secondary)", marginBottom: "40px", fontSize: "16px" }}>
+        Berikut adalah ringkasan progres dan tanggungan tugas Anda.
+      </p>
+      <div style={{ display: "grid", gap: "24px", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
+        
         {/* Tugas Terdekat Card */}
-        <div style={{ 
-          padding: "var(--space-6)", 
-          background: "var(--color-surface-elevated)", 
-          border: "1px solid var(--color-border)", 
-          borderRadius: "12px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-4)"
-        }}>
-          <div style={{ fontSize: "var(--text-h3)", display: "flex", alignItems: "center", gap: "8px" }}>
-            <Clock size={20} color="var(--color-gold)" />
-            Tugas Belum Selesai
-          </div>
-          
-          {uncompletedTasks.length === 0 ? (
-            <div style={{ 
-              background: "var(--color-green-light)", 
-              border: `1px solid var(--color-green)`,
-              padding: "var(--space-4)",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-3)"
-            }}>
-              <CheckCircle size={28} color="var(--color-green)" />
-              <div style={{ color: "var(--color-green)", fontSize: "var(--text-body-medium)", fontWeight: 500, lineHeight: 1.4 }}>
-                Yeay bagus, kamu sudah ngumpul semua tugas nih, keren! 🎉
+        <div style={{ padding: "8px", background: "var(--color-surface-sunken)", borderRadius: "24px" }}>
+          <div style={{ background: "var(--color-surface-elevated)", padding: "32px", borderRadius: "16px", height: "100%", display: "flex", flexDirection: "column", gap: "var(--space-4)", boxShadow: "0 10px 40px -10px rgba(0,0,0,0.05)" }}>
+            <div style={{ fontSize: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "12px", color: "var(--color-text-secondary)" }}>
+              <div style={{ padding: "12px", background: "var(--color-gold-light)", color: "var(--color-gold)", borderRadius: "12px" }}>
+                <Clock size={20} />
               </div>
+              Tugas Belum Selesai
             </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxHeight: "400px", overflowY: "auto", paddingRight: "4px" }}>
-              {uncompletedTasks.map((task, idx) => (
-                <div key={idx} style={{ 
-                  background: task.isPast ? "var(--color-danger-light)" : "var(--color-warning-light)", 
-                  border: `1px solid ${task.isPast ? "var(--color-danger)" : "var(--color-warning)"}`,
-                  padding: "var(--space-4)",
-                  borderRadius: "8px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "var(--space-3)"
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div>
-                      <div style={{ fontWeight: 600, color: task.isPast ? "var(--color-danger)" : "var(--color-warning)", marginBottom: "4px" }}>
-                        Modul {task.pertemuan} - {task.title}
-                      </div>
-                      <div style={{ fontSize: "var(--text-body-small)", color: "var(--color-text-secondary)" }}>
-                        Tenggat: {task.deadline.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
-                        {task.isPast && <span style={{ color: "var(--color-danger)", marginLeft: "8px", fontWeight: 600 }}>(TERLAMBAT)</span>}
-                      </div>
-                    </div>
-                    <AlertCircle size={24} color={task.isPast ? "var(--color-danger)" : "var(--color-warning)"} />
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "4px" }}>
-                    <div style={{ color: task.isPast ? "var(--color-danger)" : "var(--color-warning)", fontSize: "var(--text-body-medium)", fontWeight: 500 }}>
-                      Jangan lupa diupload ya!
-                    </div>
-                    <Link 
-                      href="/praktikan/tugas" 
-                      style={{
-                        background: "var(--color-gold)",
-                        color: "var(--color-black)",
-                        padding: "6px 16px",
-                        borderRadius: "6px",
-                        fontWeight: 600,
-                        textDecoration: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        fontSize: "14px"
-                      }}
-                    >
-                      Ke Tugas Saya <ArrowRight size={16} />
-                    </Link>
-                  </div>
+            
+            {uncompletedTasks.length === 0 ? (
+              <div style={{ 
+                background: "var(--color-green-light)", 
+                border: `1px solid var(--color-green)`,
+                padding: "var(--space-4)",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-3)",
+                marginTop: "16px"
+              }}>
+                <CheckCircle size={28} color="var(--color-green)" />
+                <div style={{ color: "var(--color-green)", fontSize: "var(--text-body-medium)", fontWeight: 500, lineHeight: 1.4 }}>
+                  Yeay bagus, kamu sudah ngumpul semua tugas nih, keren! 🎉
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxHeight: "400px", overflowY: "auto", paddingRight: "4px", marginTop: "16px" }}>
+                {uncompletedTasks.map((task, idx) => (
+                  <div key={idx} style={{ 
+                    background: task.isPast ? "var(--color-danger-light)" : "var(--color-warning-light)", 
+                    border: `1px solid ${task.isPast ? "var(--color-danger)" : "var(--color-warning)"}`,
+                    padding: "16px",
+                    borderRadius: "12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <div>
+                        <div style={{ fontWeight: 700, color: task.isPast ? "var(--color-danger)" : "var(--color-warning)", marginBottom: "4px" }}>
+                          Modul {task.pertemuan} - {task.title}
+                        </div>
+                        <div style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+                          Tenggat: {task.deadline.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
+                          {task.isPast && <span style={{ color: "var(--color-danger)", marginLeft: "8px", fontWeight: 700 }}>(TERLAMBAT)</span>}
+                        </div>
+                      </div>
+                      <AlertCircle size={24} color={task.isPast ? "var(--color-danger)" : "var(--color-warning)"} />
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "4px" }}>
+                      <div style={{ color: task.isPast ? "var(--color-danger)" : "var(--color-warning)", fontSize: "13px", fontWeight: 600 }}>
+                        Jangan lupa diupload ya!
+                      </div>
+                      <Link 
+                        href="/praktikan/tugas" 
+                        style={{
+                          background: "var(--color-gold)",
+                          color: "var(--color-black)",
+                          padding: "8px 16px",
+                          borderRadius: "8px",
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          fontSize: "13px"
+                        }}
+                      >
+                        Ke Tugas Saya <ArrowRight size={14} />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Kehadiran Card */}
-        <div style={{ padding: "var(--space-6)", background: "var(--color-surface-elevated)", border: "1px solid var(--color-border)", borderRadius: "12px" }}>
-          <div style={{ fontSize: "var(--text-h3)", marginBottom: "var(--space-2)" }}>Kehadiran</div>
-          <div style={{ fontSize: "var(--text-display)", fontWeight: 700, color: "var(--color-green)" }}>
-            {kehadiranPercentage}%
+        <div style={{ padding: "8px", background: "var(--color-surface-sunken)", borderRadius: "24px" }}>
+          <div style={{ background: "var(--color-surface-elevated)", padding: "32px", borderRadius: "16px", height: "100%", boxShadow: "0 10px 40px -10px rgba(0,0,0,0.05)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+              <div style={{ padding: "12px", background: "var(--color-green-light)", color: "var(--color-green)", borderRadius: "12px" }}>
+                <CheckCircle size={24} />
+              </div>
+              <div style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-secondary)" }}>Persentase Kehadiran</div>
+            </div>
+            <div style={{ fontSize: "48px", fontWeight: 800, color: "var(--color-green)", lineHeight: "1" }}>
+              {kehadiranPercentage}%
+            </div>
+            <div style={{ marginTop: "12px", fontSize: "13px", color: "var(--color-text-tertiary)", fontWeight: 500 }}>
+              Dari total absensi tercatat
+            </div>
           </div>
         </div>
       </div>

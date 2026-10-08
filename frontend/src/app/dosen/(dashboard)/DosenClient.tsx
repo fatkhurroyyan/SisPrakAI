@@ -161,10 +161,10 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
       } else {
         const modulIndex = initialData.modulList.findIndex(m => m.id === activeSubView);
         const modulName = modulIndex !== -1 ? `Modul ${modulIndex + 1}` : "Modul";
-        headers = ["NIM", "Nama", `N. Absen (${modulName})`, "N. Pelaksanaan", "N. Laporan", "N. Ketepatan", "Nilai Akhir Modul"];
-        rows = filteredData.map(s => {
+        headers = ["No", "NIM", "Nama Praktikan", "Pelaksanaan (35%)", "Laporan (25%)", "Waktu Kumpul (25%)", "Kehadiran (15%)", "Total"];
+        rows = filteredData.map((s, index) => {
           const mod = s.rekapPerModul[activeSubView];
-          return [s.nim, s.nama, mod?.skorAbsen ? (mod.skorAbsen/5)*100 : 0, mod?.nilaiPelaksanaan || 0, mod?.nilaiLaporan || 0, mod?.nilaiKetepatan || 0, mod?.totalNilaiModul || 0];
+          return [index + 1, s.nim, s.nama, mod?.nilaiPelaksanaan || 0, mod?.nilaiLaporan || 0, mod?.nilaiKetepatan || 0, mod?.skorAbsen || 0, mod?.totalNilaiModul || 0];
         });
       }
     }
@@ -240,30 +240,30 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
       if (activeSubView === "ORANG") {
         return (
           <tr>
-            <th onClick={() => handleSort("nim")} style={thStyle}>NIM {renderSortIcon("nim")}</th>
-            <th onClick={() => handleSort("nama")} style={thStyle}>Nama {renderSortIcon("nama")}</th>
-            <th onClick={() => handleSort("hadir")} style={thStyle}>Hadir {renderSortIcon("hadir")}</th>
-            <th onClick={() => handleSort("izin")} style={thStyle}>Izin {renderSortIcon("izin")}</th>
-            <th onClick={() => handleSort("sakit")} style={thStyle}>Sakit {renderSortIcon("sakit")}</th>
-            <th onClick={() => handleSort("alpa")} style={thStyle}>Alpa {renderSortIcon("alpa")}</th>
-            <th onClick={() => handleSort("persentaseKehadiran")} style={thStyle}>Kehadiran (%) {renderSortIcon("persentaseKehadiran")}</th>
+            <th onClick={() => handleSort("nim")}>NIM {renderSortIcon("nim")}</th>
+            <th onClick={() => handleSort("nama")}>Nama {renderSortIcon("nama")}</th>
+            <th onClick={() => handleSort("hadir")}>Hadir {renderSortIcon("hadir")}</th>
+            <th onClick={() => handleSort("izin")}>Izin {renderSortIcon("izin")}</th>
+            <th onClick={() => handleSort("sakit")}>Sakit {renderSortIcon("sakit")}</th>
+            <th onClick={() => handleSort("alpa")}>Alpa {renderSortIcon("alpa")}</th>
+            <th onClick={() => handleSort("persentaseKehadiran")}>Kehadiran (%) {renderSortIcon("persentaseKehadiran")}</th>
           </tr>
         );
       } else if (activeSubView === "KELAS") {
         return (
           <tr>
-            <th style={thStyle}>Statistik</th>
-            <th style={thStyle}>Nilai</th>
+            <th>Statistik</th>
+            <th>Nilai</th>
           </tr>
         );
       } else {
         return (
           <tr>
-            <th onClick={() => handleSort("nim")} style={thStyle}>NIM {renderSortIcon("nim")}</th>
-            <th onClick={() => handleSort("nama")} style={thStyle}>Nama {renderSortIcon("nama")}</th>
-            <th onClick={() => handleSort("statusAbsen")} style={thStyle}>Status Absen {renderSortIcon("statusAbsen")}</th>
-            <th onClick={() => handleSort("menitKeterlambatan")} style={thStyle}>Terlambat (menit) {renderSortIcon("menitKeterlambatan")}</th>
-            <th onClick={() => handleSort("skorAbsen")} style={thStyle}>Skor Absen {renderSortIcon("skorAbsen")}</th>
+            <th onClick={() => handleSort("nim")}>NIM {renderSortIcon("nim")}</th>
+            <th onClick={() => handleSort("nama")}>Nama {renderSortIcon("nama")}</th>
+            <th onClick={() => handleSort("statusAbsen")}>Status Absen {renderSortIcon("statusAbsen")}</th>
+            <th onClick={() => handleSort("menitKeterlambatan")}>Terlambat (menit) {renderSortIcon("menitKeterlambatan")}</th>
+            <th onClick={() => handleSort("skorAbsen")}>Skor Absen {renderSortIcon("skorAbsen")}</th>
           </tr>
         );
       }
@@ -271,25 +271,26 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
       if (activeSubView === "SEMUA") {
         return (
           <tr>
-            <th onClick={() => handleSort("nim")} style={{ ...thStyle, position: "sticky", left: 0, zIndex: 11, minWidth: "100px" }}>NIM {renderSortIcon("nim")}</th>
-            <th onClick={() => handleSort("nama")} style={{ ...thStyle, position: "sticky", left: "100px", zIndex: 11, minWidth: "200px", borderRight: "2px solid var(--color-border)" }}>Nama {renderSortIcon("nama")}</th>
+            <th onClick={() => handleSort("nim")} style={{ position: "sticky", left: 0, zIndex: 11, minWidth: "100px" }}>NIM {renderSortIcon("nim")}</th>
+            <th onClick={() => handleSort("nama")} style={{ position: "sticky", left: "100px", zIndex: 11, minWidth: "200px" }}>Nama {renderSortIcon("nama")}</th>
             {initialData.modulList.map((m, index) => (
-              <th key={m.id} onClick={() => handleSort(`mod_${m.id}`)} style={thStyle}>Modul {index + 1} {renderSortIcon(`mod_${m.id}`)}</th>
+              <th key={m.id} onClick={() => handleSort(`mod_${m.id}`)}>Modul {index + 1} {renderSortIcon(`mod_${m.id}`)}</th>
             ))}
-            <th onClick={() => handleSort("nilaiAkhir")} style={thStyle}>Total Nilai {renderSortIcon("nilaiAkhir")}</th>
+            <th onClick={() => handleSort("nilaiAkhir")}>Total Nilai {renderSortIcon("nilaiAkhir")}</th>
           </tr>
         );
       } else {
         return (
-          <tr>
-            <th onClick={() => handleSort("nim")} style={thStyle}>NIM {renderSortIcon("nim")}</th>
-            <th onClick={() => handleSort("nama")} style={thStyle}>Nama {renderSortIcon("nama")}</th>
-            <th onClick={() => handleSort("skorAbsen")} style={thStyle}>Nilai Absen {renderSortIcon("skorAbsen")}</th>
-            <th onClick={() => handleSort("nilaiPelaksanaan")} style={thStyle}>Pelaksanaan {renderSortIcon("nilaiPelaksanaan")}</th>
-            <th onClick={() => handleSort("nilaiLaporan")} style={thStyle}>Laporan {renderSortIcon("nilaiLaporan")}</th>
-            <th onClick={() => handleSort("nilaiKetepatan")} style={thStyle}>Ketepatan {renderSortIcon("nilaiKetepatan")}</th>
-            <th onClick={() => handleSort("totalNilaiModul")} style={thStyle}>Nilai Modul {renderSortIcon("totalNilaiModul")}</th>
-          </tr>
+            <tr>
+              <th style={{ width: "50px" }}>No</th>
+              <th onClick={() => handleSort("nim")} style={{ width: "130px", cursor: "pointer", userSelect: "none" }}>NIM {renderSortIcon("nim")}</th>
+              <th onClick={() => handleSort("nama")} style={{ width: "300px", cursor: "pointer", userSelect: "none" }}>Nama Praktikan {renderSortIcon("nama")}</th>
+              <th onClick={() => handleSort("nilaiPelaksanaan")} style={{ width: "150px", cursor: "pointer", userSelect: "none" }}>Pelaksanaan (35%) {renderSortIcon("nilaiPelaksanaan")}</th>
+              <th onClick={() => handleSort("nilaiLaporan")} style={{ width: "150px", cursor: "pointer", userSelect: "none" }}>Laporan (25%) {renderSortIcon("nilaiLaporan")}</th>
+              <th onClick={() => handleSort("nilaiKetepatan")} style={{ width: "150px", cursor: "pointer", userSelect: "none" }}>Waktu Kumpul (25%) {renderSortIcon("nilaiKetepatan")}</th>
+              <th onClick={() => handleSort("skorAbsen")} style={{ width: "150px", cursor: "pointer", userSelect: "none" }}>Kehadiran (15%) {renderSortIcon("skorAbsen")}</th>
+              <th onClick={() => handleSort("totalNilaiModul")} style={{ width: "150px", cursor: "pointer", userSelect: "none" }}>Total {renderSortIcon("totalNilaiModul")}</th>
+            </tr>
         );
       }
     }
@@ -299,12 +300,12 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
     if (type === "KEHADIRAN" && activeSubView === "KELAS") {
       return (
         <>
-          <tr style={trStyle}><td style={tdStyle}>Total Mahasiswa</td><td style={tdStyle}>{rekapKelasStats?.totalMhs || 0}</td></tr>
-          <tr style={trStyle}><td style={tdStyle}>Total Hadir / Terlambat</td><td style={{...tdStyle, color: "var(--color-green)"}}>{rekapKelasStats?.hadir || 0}</td></tr>
-          <tr style={trStyle}><td style={tdStyle}>Total Izin</td><td style={{...tdStyle, color: "var(--color-blue)"}}>{rekapKelasStats?.izin || 0}</td></tr>
-          <tr style={trStyle}><td style={tdStyle}>Total Sakit</td><td style={{...tdStyle, color: "var(--color-purple)"}}>{rekapKelasStats?.sakit || 0}</td></tr>
-          <tr style={trStyle}><td style={tdStyle}>Total Alpa</td><td style={{...tdStyle, color: "var(--color-danger)"}}>{rekapKelasStats?.alpa || 0}</td></tr>
-          <tr style={trStyle}><td style={tdStyle}>Rata-rata Kehadiran Kelas</td><td style={{...tdStyle, fontWeight: 700}}>{rekapKelasStats?.avgKehadiran || 0}%</td></tr>
+          <tr><td data-label="Statistik">Total Mahasiswa</td><td data-label="Nilai">{rekapKelasStats?.totalMhs || 0}</td></tr>
+          <tr><td data-label="Statistik">Total Hadir / Terlambat</td><td data-label="Nilai" style={{color: "var(--color-green)", fontWeight: 600}}>{rekapKelasStats?.hadir || 0}</td></tr>
+          <tr><td data-label="Statistik">Total Izin</td><td data-label="Nilai" style={{color: "var(--color-blue)", fontWeight: 600}}>{rekapKelasStats?.izin || 0}</td></tr>
+          <tr><td data-label="Statistik">Total Sakit</td><td data-label="Nilai" style={{color: "var(--color-purple)", fontWeight: 600}}>{rekapKelasStats?.sakit || 0}</td></tr>
+          <tr><td data-label="Statistik">Total Alpa</td><td data-label="Nilai" style={{color: "var(--color-danger)", fontWeight: 600}}>{rekapKelasStats?.alpa || 0}</td></tr>
+          <tr><td data-label="Statistik">Rata-rata Kehadiran Kelas</td><td data-label="Nilai" style={{fontWeight: 700}}>{rekapKelasStats?.avgKehadiran || 0}%</td></tr>
         </>
       )
     }
@@ -312,59 +313,60 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
     if (filteredData.length === 0) {
       return (
         <tr>
-          <td colSpan={20} style={{ padding: "32px", textAlign: "center", color: "var(--color-text-secondary)" }}>
+          <td colSpan={20} style={{ padding: "40px", textAlign: "center", color: "var(--color-text-tertiary)" }}>
             Tidak ada data ditemukan
           </td>
         </tr>
       )
     }
 
-    return filteredData.map(row => (
-      <tr key={row.nim} style={trStyle} onMouseOver={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+    return filteredData.map((row, index) => (
+      <tr key={row.nim}>
         {type === "KEHADIRAN" ? (
           activeSubView === "ORANG" ? (
             <>
-              <td style={tdStyle}>{row.nim}</td>
-              <td style={tdStyle}>{row.nama}</td>
-              <td style={{...tdStyle, color: "var(--color-green)"}}>{row.rekapKeseluruhan.hadir}</td>
-              <td style={{...tdStyle, color: "var(--color-blue)"}}>{row.rekapKeseluruhan.izin}</td>
-              <td style={{...tdStyle, color: "var(--color-purple)"}}>{row.rekapKeseluruhan.sakit}</td>
-              <td style={{...tdStyle, color: "var(--color-danger)"}}>{row.rekapKeseluruhan.alpa}</td>
-              <td style={{...tdStyle, fontWeight: 600}}>{row.rekapKeseluruhan.persentaseKehadiran}%</td>
+              <td data-label="NIM" className="tabular-nums">{row.nim}</td>
+              <td data-label="Nama" style={{ fontWeight: 600 }}>{row.nama}</td>
+              <td data-label="Hadir" style={{ color: "var(--color-green)", fontWeight: 600 }}>{row.rekapKeseluruhan.hadir}</td>
+              <td data-label="Izin" style={{ color: "var(--color-blue)", fontWeight: 600 }}>{row.rekapKeseluruhan.izin}</td>
+              <td data-label="Sakit" style={{ color: "var(--color-purple)", fontWeight: 600 }}>{row.rekapKeseluruhan.sakit}</td>
+              <td data-label="Alpa" style={{ color: "var(--color-danger)", fontWeight: 600 }}>{row.rekapKeseluruhan.alpa}</td>
+              <td data-label="Kehadiran (%)" style={{ fontWeight: 700 }}>{row.rekapKeseluruhan.persentaseKehadiran}%</td>
             </>
           ) : (
             <>
-              <td style={tdStyle}>{row.nim}</td>
-              <td style={tdStyle}>{row.nama}</td>
-              <td style={tdStyle}>
+              <td data-label="NIM" className="tabular-nums">{row.nim}</td>
+              <td data-label="Nama" style={{ fontWeight: 600 }}>{row.nama}</td>
+              <td data-label="Status Absen" style={{ fontWeight: 600 }}>
                 {row.rekapPerModul[activeSubView]?.statusAbsen === "HADIR" ? <span style={{color:"var(--color-green)"}}>HADIR</span> :
                  row.rekapPerModul[activeSubView]?.statusAbsen === "TERLAMBAT" ? <span style={{color:"var(--color-gold)"}}>TERLAMBAT</span> :
                  row.rekapPerModul[activeSubView]?.statusAbsen === "ALPA" ? <span style={{color:"var(--color-danger)"}}>ALPA</span> :
                  row.rekapPerModul[activeSubView]?.statusAbsen || "-"}
               </td>
-              <td style={tdStyle}>{row.rekapPerModul[activeSubView]?.menitKeterlambatan || 0}</td>
-              <td style={{...tdStyle, fontWeight: 600}}>{row.rekapPerModul[activeSubView]?.skorAbsen || 0}</td>
+              <td data-label="Terlambat (menit)">{row.rekapPerModul[activeSubView]?.menitKeterlambatan || 0}</td>
+              <td data-label="Skor Absen" style={{ fontWeight: 700 }}>{row.rekapPerModul[activeSubView]?.skorAbsen || 0}</td>
             </>
           )
         ) : (
           activeSubView === "SEMUA" ? (
             <>
-              <td style={{...tdStyle, position: "sticky", left: 0, background: "inherit", zIndex: 1, minWidth: "100px"}}>{row.nim}</td>
-              <td style={{...tdStyle, position: "sticky", left: "100px", background: "inherit", zIndex: 1, minWidth: "200px", borderRight: "2px solid var(--color-border)"}}>{row.nama}</td>
-              {initialData.modulList.map(m => (
-                <td key={m.id} style={tdStyle}>{row.rekapPerModul[m.id]?.totalNilaiModul || 0}</td>
+              <td data-label="NIM" className="tabular-nums" style={{ position: "sticky", left: 0, background: "inherit", zIndex: 1, minWidth: "100px" }}>{row.nim}</td>
+              <td data-label="Nama" style={{ fontWeight: 600, position: "sticky", left: "100px", background: "inherit", zIndex: 1, minWidth: "200px" }}>{row.nama}</td>
+              {initialData.modulList.map((m, index) => (
+                <td data-label={`Modul ${index + 1}`} key={m.id}>{row.rekapPerModul[m.id]?.totalNilaiModul || 0}</td>
               ))}
-              <td style={{...tdStyle, fontWeight: 700, color: "var(--color-green)"}}>{row.rekapKeseluruhan.nilaiAkhir}</td>
+              <td data-label="Total Nilai" style={{ fontWeight: 800, color: "var(--color-green)" }}>{row.rekapKeseluruhan.nilaiAkhir}</td>
             </>
           ) : (
             <>
-              <td style={tdStyle}>{row.nim}</td>
-              <td style={tdStyle}>{row.nama}</td>
-              <td style={tdStyle}>{row.rekapPerModul[activeSubView]?.skorAbsen ? (row.rekapPerModul[activeSubView].skorAbsen/5)*100 : 0}</td>
-              <td style={tdStyle}>{row.rekapPerModul[activeSubView]?.nilaiPelaksanaan || 0}</td>
-              <td style={tdStyle}>{row.rekapPerModul[activeSubView]?.nilaiLaporan || 0}</td>
-              <td style={tdStyle}>{row.rekapPerModul[activeSubView]?.nilaiKetepatan || 0}</td>
-              <td style={{...tdStyle, fontWeight: 700, color: "var(--color-green)"}}>{row.rekapPerModul[activeSubView]?.totalNilaiModul || 0}</td>
+              <td data-label="No">{index + 1}</td>
+              <td data-label="NIM" className="tabular-nums">{row.nim}</td>
+              <td data-label="Nama" style={{ fontWeight: 600 }}>{row.nama}</td>
+              <td data-label="Pelaksanaan">{row.rekapPerModul[activeSubView]?.nilaiPelaksanaan || 0}</td>
+              <td data-label="Laporan">{row.rekapPerModul[activeSubView]?.nilaiLaporan || 0}</td>
+              <td data-label="Waktu Kumpul">{row.rekapPerModul[activeSubView]?.nilaiKetepatan || 0}</td>
+              <td data-label="Kehadiran">{row.rekapPerModul[activeSubView]?.skorAbsen || 0}</td>
+              <td data-label="Total" style={{ fontWeight: 800, color: "var(--color-green)" }}>{row.rekapPerModul[activeSubView]?.totalNilaiModul || 0}</td>
             </>
           )
         )}
@@ -408,88 +410,66 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
         </div>
       </div>
 
-      {/* Class Tabs */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap", borderBottom: "1px solid var(--color-border)", paddingBottom: "16px" }}>
-        {classes.map(cls => (
-          <button
-            key={cls}
-            onClick={() => setActiveClass(cls)}
-            style={{
-              padding: "8px 16px",
-              background: activeClass === cls ? "var(--color-gold)" : "var(--color-surface)",
-              color: activeClass === cls ? "var(--color-black)" : "var(--color-text-secondary)",
-              border: activeClass === cls ? "1px solid var(--color-gold)" : "1px solid var(--color-border)",
-              borderRadius: "20px",
-              fontWeight: 600,
-              fontSize: "14px",
-              cursor: "pointer",
-              transition: "all 0.2s"
-            }}
-          >
-            {cls}
-          </button>
-        ))}
-      </div>
-
-      {/* Sub Tabs based on Type */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "24px", flexWrap: "wrap" }}>
-        {type === "KEHADIRAN" ? (
-          <>
-            <button onClick={() => setActiveSubView("ORANG")} style={getSubTabStyle(activeSubView === "ORANG")}>Rekap Per Orang</button>
-            <button onClick={() => setActiveSubView("KELAS")} style={getSubTabStyle(activeSubView === "KELAS")}>Rekap Per Kelas</button>
-            {initialData.modulList.map((m, index) => (
-              <button key={m.id} onClick={() => setActiveSubView(m.id)} style={getSubTabStyle(activeSubView === m.id)}>Modul {index + 1}</button>
-            ))}
-          </>
-        ) : (
-          <>
-            <button onClick={() => setActiveSubView("SEMUA")} style={getSubTabStyle(activeSubView === "SEMUA")}>Rekap Seluruh Modul</button>
-            {initialData.modulList.map((m, index) => (
-              <button key={m.id} onClick={() => setActiveSubView(m.id)} style={getSubTabStyle(activeSubView === m.id)}>Modul {index + 1}</button>
-            ))}
-          </>
-        )}
-      </div>
-
-      <div style={{ overflowX: "auto", borderRadius: "12px", border: "1px solid var(--color-border)", background: "var(--color-surface)" }}>
-        <div style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto", width: "100%" }}>
-          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0 }}>
-            <thead style={{ position: "sticky", top: 0, background: "var(--color-surface-sunken)", zIndex: 20, boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
-              {renderTableHead()}
-            </thead>
-            <tbody style={{ background: "var(--color-surface)" }}>
-              {renderTableBody()}
-            </tbody>
-          </table>
+      {/* Class Tabs - Fluid Island */}
+      <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap" }}>
+        <div style={{ display: "inline-flex", background: "var(--color-surface-sunken)", padding: "4px", borderRadius: "9999px", flexWrap: "wrap", gap: "4px" }}>
+          {classes.map(cls => (
+            <button
+              key={cls}
+              onClick={() => setActiveClass(cls)}
+              style={getFluidTabStyle(activeClass === cls)}
+            >
+              {cls}
+            </button>
+          ))}
         </div>
+      </div>
+
+      {/* Sub Tabs based on Type - Fluid Island */}
+      <div style={{ display: "flex", gap: "8px", marginBottom: "24px", flexWrap: "wrap" }}>
+        <div style={{ display: "inline-flex", background: "var(--color-surface-sunken)", padding: "4px", borderRadius: "9999px", flexWrap: "wrap", gap: "4px" }}>
+          {type === "KEHADIRAN" ? (
+            <>
+              <button onClick={() => setActiveSubView("ORANG")} style={getFluidTabStyle(activeSubView === "ORANG")}>Rekap Per Orang</button>
+              <button onClick={() => setActiveSubView("KELAS")} style={getFluidTabStyle(activeSubView === "KELAS")}>Rekap Per Kelas</button>
+              {initialData.modulList.map((m, index) => (
+                <button key={m.id} onClick={() => setActiveSubView(m.id)} style={getFluidTabStyle(activeSubView === m.id)}>Modul {index + 1}</button>
+              ))}
+            </>
+          ) : (
+            <>
+              <button onClick={() => setActiveSubView("SEMUA")} style={getFluidTabStyle(activeSubView === "SEMUA")}>Rekap Seluruh Modul</button>
+              {initialData.modulList.map((m, index) => (
+                <button key={m.id} onClick={() => setActiveSubView(m.id)} style={getFluidTabStyle(activeSubView === m.id)}>Modul {index + 1}</button>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="premium-table-wrapper">
+        <table className="premium-table">
+          <thead>
+            {renderTableHead()}
+          </thead>
+          <tbody>
+            {renderTableBody()}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
 
-const thStyle: React.CSSProperties = {
-  padding: "16px", textAlign: "left", fontSize: "12px", fontWeight: 700, 
-  textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-secondary)", 
-  cursor: "pointer", borderBottom: "2px solid var(--color-border)",
-  background: "var(--color-surface-sunken)"
-};
-
-const tdStyle: React.CSSProperties = {
-  padding: "16px", fontSize: "14px", color: "var(--color-text)", borderBottom: "1px solid var(--color-border)"
-};
-
-const trStyle: React.CSSProperties = {
-  transition: "background 0.2s"
-};
-
-const getSubTabStyle = (isActive: boolean): React.CSSProperties => ({
-  padding: "6px 14px",
-  background: isActive ? "var(--color-primary)" : "var(--color-surface)",
-  color: isActive ? "white" : "var(--color-text-secondary)",
-  border: isActive ? "1px solid var(--color-primary)" : "1px solid var(--color-border)",
-  borderRadius: "16px",
+const getFluidTabStyle = (isActive: boolean): React.CSSProperties => ({
+  padding: "8px 20px",
+  background: isActive ? "var(--color-surface)" : "transparent",
+  color: isActive ? "var(--color-black)" : "var(--color-text-secondary)",
+  border: "none",
+  borderRadius: "9999px",
   fontWeight: 600,
   fontSize: "13px",
   cursor: "pointer",
-  transition: "all 0.2s"
+  transition: "all 0.2s",
+  boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.05)" : "none"
 });

@@ -28,9 +28,10 @@ type PenilaianState = {
   waktu_skor: number;
   kehadiran_skor: number;
   absensi_status: string;
+  terlambat_hari?: number | null;
 };
 
-const MOCK_PERTEMUAN = Array.from({ length: 12 }, (_, i) => `Pertemuan ${i + 1}`);
+const MOCK_PERTEMUAN = Array.from({ length: 12 }, (_, i) => `Modul ${i + 1}`);
 
 export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianClientProps) {
   const [activeKelas, setActiveKelas] = useState(kelasList[0]?.id || "");
@@ -65,7 +66,7 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
       if (!activeKelas) return;
       setIsLoading(true);
       try {
-        const pertemuanNum = parseInt(activePertemuan.replace("Pertemuan ", ""));
+        const pertemuanNum = parseInt(activePertemuan.replace("Modul ", ""));
         const data = await getPenilaian(activeKelas, pertemuanNum);
         if (isMounted) setPenilaian(data);
       } catch (error) {
@@ -94,7 +95,7 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const pertemuanNum = parseInt(activePertemuan.replace("Pertemuan ", ""));
+      const pertemuanNum = parseInt(activePertemuan.replace("Modul ", ""));
       const payload: Record<string, {pelaksanaan_skor: number, laporan_skor: number, waktu_skor: number}> = {};
       
       filteredMahasiswa.forEach(mhs => {
@@ -258,9 +259,9 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
           />
         </div>
         
-        {/* Dropdown Pertemuan */}
+        {/* Dropdown Modul */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-          <span style={{ fontSize: "var(--text-body-medium)" }}>Pilih Pertemuan:</span>
+          <span style={{ fontSize: "var(--text-body-medium)" }}>Pilih Modul:</span>
           <select 
             value={activePertemuan}
             onChange={(e) => setActivePertemuan(e.target.value)}
@@ -280,53 +281,53 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
       </div>
 
       {/* Tabel Penilaian */}
-      <div style={{ position: "relative", background: "var(--color-surface-elevated)", border: "1px solid var(--color-border)", borderRadius: "8px", overflowX: "auto", overflowY: "auto", minHeight: "200px", maxHeight: "calc(100vh - 300px)" }}>
+      <div className="premium-table-wrapper" style={{ position: "relative", minHeight: "200px" }}>
         {isLoading && (
           <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}>
             <Loader2 style={{ animation: "spin 1s linear infinite", width: "32px", height: "32px", color: "var(--color-gold)" }} />
           </div>
         )}
-        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "1000px" }}>
-          <thead style={{ background: "var(--color-black)", color: "var(--color-surface)", position: "sticky", top: 0, zIndex: 5 }}>
+        <table className="premium-table">
+          <thead>
             <tr>
-              <th style={{ padding: "12px", fontWeight: 600, width: "50px" }}>No</th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "130px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("nim")}>
+              <th style={{ width: "50px" }}>No</th>
+              <th style={{ width: "130px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("nim")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   NIM
                   {sortColumn === "nim" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                 </div>
               </th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "300px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("nama")}>
+              <th style={{ width: "300px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("nama")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   Nama Praktikan
                   {sortColumn === "nama" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                 </div>
               </th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("pelaksanaan")}>
+              <th style={{ width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("pelaksanaan")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   Pelaksanaan (35%)
                   {sortColumn === "pelaksanaan" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                 </div>
               </th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("laporan")}>
+              <th style={{ width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("laporan")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   Laporan (25%)
                   {sortColumn === "laporan" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                 </div>
               </th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("waktu")}>
+              <th style={{ width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("waktu")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   Waktu Kumpul (25%)
                   {sortColumn === "waktu" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                 </div>
               </th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("kehadiran")}>
+              <th style={{ width: "150px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("kehadiran")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   Kehadiran (15%)
                   {sortColumn === "kehadiran" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                 </div>
               </th>
-              <th style={{ padding: "12px", fontWeight: 600, width: "100px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("total")}>
+              <th style={{ width: "100px", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("total")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", justifyContent: "center" }}>
                   Total
                   {sortColumn === "total" ? (sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
@@ -359,17 +360,17 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
                 };
 
                 return (
-                  <tr key={mhs.id} style={{ borderBottom: "1px solid var(--color-surface-sunken)" }}>
-                    <td style={{ padding: "12px" }}>{idx + 1}</td>
-                    <td className="tabular-nums" style={{ padding: "12px" }}>{mhs.nim}</td>
-                    <td style={{ padding: "12px", fontWeight: 500 }}>
+                  <tr key={mhs.id}>
+                    <td data-label="No">{idx + 1}</td>
+                    <td data-label="NIM" className="tabular-nums">{mhs.nim}</td>
+                    <td data-label="Nama" style={{ fontWeight: 500 }}>
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "280px" }}>
                         {mhs.nama}
                       </div>
                     </td>
                     
                     {/* Pelaksanaan Praktikum */}
-                    <td style={{ padding: "12px" }}>
+                    <td data-label="Pelaksanaan (35%)">
                       <select value={record.pelaksanaan_skor} onChange={(e) => handleScoreChange(mhs.id, "pelaksanaan_skor", parseInt(e.target.value))} style={selectStyle}>
                         <option value="5">5 - 100% langkah</option>
                         <option value="4">4 - &ge; 80% langkah</option>
@@ -381,7 +382,7 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
                     </td>
 
                     {/* Laporan Praktikum */}
-                    <td style={{ padding: "12px" }}>
+                    <td data-label="Laporan (25%)">
                       <select value={record.laporan_skor} onChange={(e) => handleScoreChange(mhs.id, "laporan_skor", parseInt(e.target.value))} style={selectStyle}>
                         <option value="5">5 - 100% laporan tepat</option>
                         <option value="4">4 - &ge; 80% laporan tepat</option>
@@ -393,7 +394,7 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
                     </td>
 
                     {/* Ketepatan Waktu Pengumpulan */}
-                    <td style={{ padding: "12px" }}>
+                    <td data-label="Waktu Kumpul (25%)">
                       <select value={record.waktu_skor} onChange={(e) => handleScoreChange(mhs.id, "waktu_skor", parseInt(e.target.value))} style={selectStyle}>
                         <option value="5">5 - Tepat waktu / awal</option>
                         <option value="4">4 - Terlambat &le; 1 hari</option>
@@ -402,10 +403,15 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
                         <option value="1">1 - Terlambat &gt; 7 hari</option>
                         <option value="0">0 - Tidak mengumpulkan</option>
                       </select>
+                      {record.terlambat_hari !== undefined && (
+                        <div style={{ marginTop: "4px", fontSize: "11px", fontWeight: 600, color: record.terlambat_hari === null ? "var(--color-text-tertiary)" : record.terlambat_hari > 0 ? "var(--color-danger)" : "var(--color-success)" }}>
+                          {record.terlambat_hari === null ? "Belum ada file" : record.terlambat_hari === 0 ? "Tepat Waktu" : `Terlambat ${record.terlambat_hari} hari`}
+                        </div>
+                      )}
                     </td>
 
                     {/* Kehadiran & Kedisiplinan (Read-Only) */}
-                    <td style={{ padding: "12px" }}>
+                    <td data-label="Kehadiran (15%)">
                       <div style={{
                         padding: "6px 8px",
                         borderRadius: "4px",
@@ -417,12 +423,12 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
                         alignItems: "center"
                       }}>
                         <span>{record.absensi_status}</span>
-                        <span style={{ fontWeight: 600, color: "var(--color-black)" }}>{record.kehadiran_skor}</span>
+                        <span style={{ fontWeight: 600, color: "var(--color-black)", marginLeft: "8px" }}>{record.kehadiran_skor}</span>
                       </div>
                     </td>
 
                     {/* Total Skor */}
-                    <td style={{ padding: "12px", textAlign: "center" }}>
+                    <td data-label="Total">
                       <div style={{ 
                         display: "inline-block", 
                         padding: "6px 12px", 

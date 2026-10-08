@@ -278,14 +278,14 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
               <Loader2 size={40} className="spin" color="var(--color-gold)" />
             </div>
           ) : (
-            <div style={{ overflowY: "auto", flex: 1, border: "1px solid var(--color-border)", borderRadius: "8px" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                <thead style={{ background: "var(--color-black)", color: "var(--color-surface)", position: "sticky", top: 0 }}>
+            <div className="premium-table-wrapper">
+              <table className="premium-table">
+                <thead>
                   <tr>
-                    <th style={{ padding: "12px" }}>NIM</th>
-                    <th style={{ padding: "12px" }}>Nama Praktikan</th>
-                    <th style={{ padding: "12px" }}>Hasil Praktikum</th>
-                    <th style={{ padding: "12px" }}>Tugas Rumah</th>
+                    <th style={{ padding: "16px 24px" }}>NIM</th>
+                    <th style={{ padding: "16px 24px" }}>Nama Praktikan</th>
+                    <th style={{ padding: "16px 24px" }}>Hasil Praktikum</th>
+                    <th style={{ padding: "16px 24px" }}>Tugas Rumah</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -296,40 +296,40 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                       const statusHP = getLatenessStatus(s.hasil_praktikum?.created_at, subsPengaturan?.batas_hasil_praktikum);
                       const statusTR = getLatenessStatus(s.tugas_rumah?.created_at, subsPengaturan?.batas_tugas_rumah);
                       return (
-                        <tr key={idx} style={{ borderBottom: "1px solid var(--color-surface-sunken)" }}>
-                          <td style={{ padding: "12px" }} className="tabular-nums">{s.mahasiswa.nim}</td>
-                          <td style={{ padding: "12px", fontWeight: 500 }}>{s.mahasiswa.nama}</td>
+                        <tr key={idx}>
+                          <td data-label="NIM" style={{ padding: "16px 24px" }} className="tabular-nums">{s.mahasiswa.nim}</td>
+                          <td data-label="Nama Praktikan" style={{ padding: "16px 24px", fontWeight: 600 }}>{s.mahasiswa.nama}</td>
                           
-                          <td style={{ padding: "12px" }}>
+                          <td data-label="Hasil Praktikum" style={{ padding: "16px 24px" }}>
                             {!s.hasil_praktikum ? (
-                              <div style={{ fontSize: "12px", color: "var(--color-danger)", fontWeight: 500 }}>Tidak mengumpulkan</div>
+                              <div style={{ fontSize: "12px", color: "var(--color-danger)", fontWeight: 600 }}>Tidak mengumpulkan</div>
                             ) : (
                               <div>
-                                <a href={s.hasil_praktikum.file_url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--color-blue)", textDecoration: "none", fontWeight: 500 }}>
-                                  <FileText size={14} /> Lihat File
+                                <a href={s.hasil_praktikum.file_url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--color-blue)", textDecoration: "none", fontWeight: 600, fontSize: "14px" }}>
+                                  <FileText size={16} /> Lihat File
                                 </a>
-                                <div style={{ fontSize: "11px", marginTop: "6px", color: "var(--color-text-secondary)", fontWeight: 400 }}>
+                                <div style={{ fontSize: "12px", marginTop: "6px", color: "var(--color-text-secondary)", fontWeight: 500 }}>
                                   {formatTimestamp(s.hasil_praktikum.created_at)}
                                 </div>
-                                <div style={{ fontSize: "11px", marginTop: "4px", color: statusHP.includes("Terlambat") ? "var(--color-danger)" : "var(--color-green)", fontWeight: 500 }}>
+                                <div style={{ fontSize: "12px", marginTop: "4px", color: statusHP.includes("Terlambat") ? "var(--color-danger)" : "var(--color-green)", fontWeight: 600 }}>
                                   {statusHP}
                                 </div>
                               </div>
                             )}
                           </td>
 
-                          <td style={{ padding: "12px" }}>
+                          <td data-label="Tugas Rumah" style={{ padding: "16px 24px" }}>
                             {!s.tugas_rumah ? (
-                              <div style={{ fontSize: "12px", color: "var(--color-danger)", fontWeight: 500 }}>Tidak mengumpulkan</div>
+                              <div style={{ fontSize: "12px", color: "var(--color-danger)", fontWeight: 600 }}>Tidak mengumpulkan</div>
                             ) : (
                               <div>
-                                <a href={s.tugas_rumah.file_url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--color-blue)", textDecoration: "none", fontWeight: 500 }}>
-                                  <FileText size={14} /> Lihat File
+                                <a href={s.tugas_rumah.file_url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--color-blue)", textDecoration: "none", fontWeight: 600, fontSize: "14px" }}>
+                                  <FileText size={16} /> Lihat File
                                 </a>
-                                <div style={{ fontSize: "11px", marginTop: "6px", color: "var(--color-text-secondary)", fontWeight: 400 }}>
+                                <div style={{ fontSize: "12px", marginTop: "6px", color: "var(--color-text-secondary)", fontWeight: 500 }}>
                                   {formatTimestamp(s.tugas_rumah.created_at)}
                                 </div>
-                                <div style={{ fontSize: "11px", marginTop: "4px", color: statusTR.includes("Terlambat") ? "var(--color-danger)" : "var(--color-green)", fontWeight: 500 }}>
+                                <div style={{ fontSize: "12px", marginTop: "4px", color: statusTR.includes("Terlambat") ? "var(--color-danger)" : "var(--color-green)", fontWeight: 600 }}>
                                   {statusTR}
                                 </div>
                               </div>
@@ -346,67 +346,67 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
         </div>
       ) : (
         // Modul List View
-        <div style={{ position: "relative", background: "var(--color-surface-elevated)", border: "1px solid var(--color-border)", overflowX: "auto", overflowY: "auto", minHeight: "200px", maxHeight: "calc(100vh - 250px)" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "800px" }}>
-            <thead style={{ background: "var(--color-black)", color: "var(--color-surface)", position: "sticky", top: 0, zIndex: 5 }}>
+        <div className="premium-table-wrapper">
+          <table className="premium-table">
+            <thead>
               <tr>
-                <th style={{ padding: "12px", fontWeight: 600, width: "100px" }}>Pertemuan</th>
-                <th style={{ padding: "12px", fontWeight: 600 }}>Tenggat Hasil Praktikum</th>
-                <th style={{ padding: "12px", fontWeight: 600 }}>Tenggat Tugas Rumah</th>
-                <th style={{ padding: "12px", fontWeight: 600, width: "250px", textAlign: "center" }}>Aksi</th>
+                <th style={{ padding: "16px 24px", width: "100px" }}>Pertemuan</th>
+                <th style={{ padding: "16px 24px" }}>Tenggat Hasil Praktikum</th>
+                <th style={{ padding: "16px 24px" }}>Tenggat Tugas Rumah</th>
+                <th style={{ padding: "16px 24px", width: "250px", textAlign: "center" }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {Array.from({ length: 12 }, (_, i) => i + 1).map((pertemuan) => {
                 const record = getRecord(pertemuan);
                 const isConfigured = allPengaturan.some(p => p.kelas_id === activeClassId && p.pertemuan === pertemuan);
-                
                 return (
-                  <tr key={pertemuan} style={{ 
-                    borderBottom: "1px solid var(--color-surface-sunken)",
-                    background: isConfigured ? "rgba(224, 185, 118, 0.05)" : "transparent"
-                  }}>
-                    <td style={{ padding: "12px", fontWeight: 500 }}>
+                  <tr key={pertemuan} className={isConfigured ? "configured-row" : ""}>
+                    <td data-label="Pertemuan" style={{ padding: "16px 24px", fontWeight: 600 }}>
                       Modul {pertemuan}
-                      {isConfigured && <div style={{ fontSize: "11px", color: "var(--color-green)", marginTop: "4px" }}>• Ditugaskan</div>}
+                      {isConfigured && <div style={{ fontSize: "12px", color: "var(--color-green)", marginTop: "6px" }}>• Ditugaskan</div>}
                     </td>
-                    <td style={{ padding: "12px" }}>
+                    <td data-label="Tenggat Hasil Praktikum" style={{ padding: "16px 24px" }}>
                       <input 
                         type="datetime-local" 
                         value={toLocalDatetimeString(record.batas_hasil_praktikum)}
                         onChange={(e) => handleChange(pertemuan, "batas_hasil_praktikum", e.target.value ? new Date(e.target.value).toISOString() : "")}
-                        style={{ padding: "8px", borderRadius: "4px", border: "1px solid var(--color-border)", background: "var(--color-surface)", width: "100%" }}
+                        style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-surface)", width: "100%", outline: "none", transition: "border-color 0.2s" }}
+                        onFocus={(e) => e.target.style.borderColor = "var(--color-gold)"}
+                        onBlur={(e) => e.target.style.borderColor = "var(--color-border)"}
                       />
                     </td>
-                    <td style={{ padding: "12px" }}>
+                    <td data-label="Tenggat Tugas Rumah" style={{ padding: "16px 24px" }}>
                       <input 
                         type="datetime-local" 
                         value={toLocalDatetimeString(record.batas_tugas_rumah)}
                         onChange={(e) => handleChange(pertemuan, "batas_tugas_rumah", e.target.value ? new Date(e.target.value).toISOString() : "")}
-                        style={{ padding: "8px", borderRadius: "4px", border: "1px solid var(--color-border)", background: "var(--color-surface)", width: "100%" }}
+                        style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-surface)", width: "100%", outline: "none", transition: "border-color 0.2s" }}
+                        onFocus={(e) => e.target.style.borderColor = "var(--color-gold)"}
+                        onBlur={(e) => e.target.style.borderColor = "var(--color-border)"}
                       />
                     </td>
-                    <td style={{ padding: "12px", textAlign: "center" }}>
+                    <td data-label="Aksi" style={{ padding: "16px 24px", textAlign: "center" }}>
                       <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
                         <button 
                           onClick={() => handleSave(pertemuan)}
                           disabled={loading === pertemuan}
                           style={{ 
-                            padding: "8px 12px", 
+                            padding: "10px 16px", 
                             background: "var(--color-gold)", 
                             color: "black", 
                             border: "none", 
-                            borderRadius: "4px", 
+                            borderRadius: "8px", 
                             cursor: "pointer",
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "6px",
                             fontWeight: 600,
                             opacity: loading === pertemuan ? 0.7 : 1,
-                            fontSize: "13px"
+                            fontSize: "14px"
                           }}
                         >
-                          {loading === pertemuan ? <Loader2 size={14} className="spin" /> : <Save size={14} />}
+                          {loading === pertemuan ? <Loader2 size={16} className="spin" /> : <Save size={16} />}
                           Simpan
                         </button>
 
@@ -418,40 +418,40 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                                 setResetModalOpen(true);
                               }}
                               style={{ 
-                                padding: "8px 12px", 
+                                padding: "10px 16px", 
                                 background: "var(--color-danger-light)", 
                                 color: "var(--color-danger)", 
-                                border: "1px solid var(--color-danger)", 
-                                borderRadius: "4px", 
+                                border: "none", 
+                                borderRadius: "8px", 
                                 cursor: "pointer",
                                 display: "inline-flex",
                                 alignItems: "center",
-                                gap: "4px",
+                                gap: "6px",
                                 fontWeight: 600,
-                                fontSize: "13px"
+                                fontSize: "14px"
                               }}
                             >
-                              <RotateCcw size={14} />
+                              <RotateCcw size={16} />
                               Reset
                             </button>
                             
                             <button 
                               onClick={() => openSubmissions(pertemuan)}
                               style={{ 
-                                padding: "8px 12px", 
+                                padding: "10px 16px", 
                                 background: "var(--color-surface)", 
                                 color: "var(--color-text)", 
                                 border: "1px solid var(--color-border)", 
-                                borderRadius: "4px", 
+                                borderRadius: "8px", 
                                 cursor: "pointer",
                                 display: "inline-flex",
                                 alignItems: "center",
-                                gap: "4px",
+                                gap: "6px",
                                 fontWeight: 600,
-                                fontSize: "13px"
+                                fontSize: "14px"
                               }}
                             >
-                              <Eye size={14} />
+                              <Eye size={16} />
                               Lihat
                             </button>
                           </>

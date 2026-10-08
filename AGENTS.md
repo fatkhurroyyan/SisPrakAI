@@ -26,10 +26,14 @@ Always use **Plus Jakarta Sans** for the primary sans-serif font, never use Inte
 2. Use strict semantic colors for actions: Delete/Remove MUST be Red (`var(--color-danger)`). Edit/Update MUST be Green or Blue (e.g., `var(--color-green)`).
 
 # UI/UX Guidelines: Table Layouts
-1. When displaying data tables with potentially long lists of rows (e.g., attendance lists, data grids), ALWAYS implement sticky headers.
-2. Wrap the table in a container with a defined `max-height` (e.g., `calc(100vh - 300px)`), `overflow-y: auto`, and `width: "100%"`.
-3. Apply `position: sticky`, `top: 0`, and a solid background color to the `<thead>` or `<th>` elements so they remain visible while scrolling the table body.
-4. For horizontal sub-tab navigation (e.g., switching between classes), use a compact height (e.g., `padding: "6px 16px"`) and avoid making the tabs unnecessarily tall.
+1. ALWAYS use the `.premium-table-wrapper` and `.premium-table` CSS classes for rendering data tables.
+2. Do NOT use raw inline styles like `overflow-y: auto` or manual `border-collapse`. Rely on the global CSS modules or `globals.css` that define the premium table behavior.
+3. Make sure table rows on mobile degrade gracefully into stacked cards by applying `data-label` attributes to `<td>` elements.
+
+# UI/UX Guidelines: Navigation Tabs
+1. For horizontal sub-tab navigation (e.g., switching between classes or modules), ALWAYS use the "Fluid Island Navigation" capsule style.
+2. The tab container should be a rounded pill (`borderRadius: "9999px"`, `padding: "4px"`, `background: "var(--color-surface-sunken)"`).
+3. Active tabs should have `background: "var(--color-surface)"`, elevated with a slight shadow, and rounded pill styling. Inactive tabs should have a transparent background and muted text.
 
 # Backend: Session & Authentication
 1. The `session` object obtained from `getSession()` in `auth.ts` only contains `nim`, `role`, and `nama`. It does **NOT** contain `id`.
@@ -49,6 +53,8 @@ Always use **Plus Jakarta Sans** for the primary sans-serif font, never use Inte
 # Database & SQL Rules
 1. When generating SQL seed data (e.g., `INSERT INTO`), use standard single quotes for strings (e.g., `'NAMA'`).
 2. NEVER use triple single quotes (`'''`) around values unless the string itself legitimately contains a literal single quote that requires escaping, and even then, standard SQL escaping (`''`) is preferred to avoid injecting quotes into the data.
+3. The `absensi` and `penilaian` tables do **NOT** use `modul_id`. They are linked to a specific session using the `pertemuan` (INT) column, which maps to `modul.nomor`.
+4. In the `absensi` table, the `keterlambatan` column is a `TEXT` field containing predefined ranges (`'<= 10'`, `'11-30'`, `'31-60'`, `'> 60'`), **not** an integer representing exact minutes.
 
 # Frontend: React & Server Actions
 1. When calling asynchronous Server Actions inside a `useEffect`, ALWAYS implement an `isMounted` flag.

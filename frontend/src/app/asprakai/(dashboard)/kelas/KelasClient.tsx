@@ -22,7 +22,7 @@ type KelasClientProps = {
   mahasiswaList: Mahasiswa[];
 };
 
-const MOCK_PERTEMUAN = Array.from({ length: 12 }, (_, i) => `Pertemuan ${i + 1}`);
+const MOCK_PERTEMUAN = Array.from({ length: 12 }, (_, i) => `Modul ${i + 1}`);
 
 export default function KelasClient({ kelasList, mahasiswaList }: KelasClientProps) {
   const [activeKelas, setActiveKelas] = useState(kelasList[0]?.id || "");
@@ -60,7 +60,7 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
       if (!activeKelas) return;
       setIsLoading(true);
       try {
-        const pertemuanNum = parseInt(activePertemuan.replace("Pertemuan ", ""));
+        const pertemuanNum = parseInt(activePertemuan.replace("Modul ", ""));
         const data = await getAbsensi(activeKelas, pertemuanNum);
         if (isMounted) setAbsensi(data);
       } catch (error) {
@@ -93,7 +93,7 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const pertemuanNum = parseInt(activePertemuan.replace("Pertemuan ", ""));
+      const pertemuanNum = parseInt(activePertemuan.replace("Modul ", ""));
       
       const payload: Record<string, {status: string, keterlambatan?: string}> = {};
       filteredMahasiswa.forEach(mhs => {
@@ -114,7 +114,7 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
     let isMounted = true;
     setIsResetting(true);
     try {
-      const pertemuanNum = parseInt(activePertemuan.replace("Pertemuan ", ""));
+      const pertemuanNum = parseInt(activePertemuan.replace("Modul ", ""));
       await resetAbsensi(activeKelas, pertemuanNum);
       
       if (isMounted) {
@@ -369,7 +369,7 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
             Hadirkan Semua
           </button>
 
-          <span style={{ fontSize: "var(--text-body-medium)", marginLeft: "var(--space-2)" }}>Pilih Pertemuan:</span>
+          <span style={{ fontSize: "var(--text-body-medium)", marginLeft: "var(--space-2)" }}>Pilih Modul:</span>
           <select 
             value={activePertemuan}
             onChange={(e) => setActivePertemuan(e.target.value)}

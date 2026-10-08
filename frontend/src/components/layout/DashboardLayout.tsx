@@ -2,9 +2,9 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, User, Menu } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import styles from "./DashboardLayout.module.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export interface NavItem {
   label: string;
@@ -31,7 +31,16 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Prevent scrolling when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMobileMenuOpen]);
 
   const handleLogout = async () => {
     try {
@@ -42,31 +51,56 @@ export function DashboardLayout({
     }
   };
 
+  const roleText = userRole === "asprak" ? "Asisten Praktikum" : userRole === "dosen" ? "Dosen Portal" : "Praktikan";
+
   return (
     <div className={styles.container}>
-      {isSidebarOpen && (
-        <div className={styles.overlay} onClick={() => setIsSidebarOpen(false)} />
-      )}
-      
-      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ""}`}>
-        <div className={styles.sidebarHeader}>
-          {userRole === "asprak" || userRole === "dosen" ? (
-            <div>
-              <div style={{ fontSize: "var(--text-h3)" }}>SisPrakAI</div>
-              <div style={{ fontSize: "var(--text-small)", color: "var(--color-text-tertiary)", fontWeight: 400 }}>{userRole === "dosen" ? "Dosen Portal" : "Asprak Portal"}</div>
-            </div>
-          ) : (
-            <div>
-              <div style={{ fontSize: "var(--text-h3)" }} className="tabular-nums">{userNim}</div>
-              <div style={{ fontSize: "var(--text-small)", color: "var(--color-text-tertiary)", fontWeight: 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {userName}
-              </div>
-            </div>
-          )}
-        </div>
+      {/* FLUID ISLAND NAVIGATION */}
+      <div className={styles.islandWrapper}>
+        <nav className={styles.islandNav}>
+          <div className={styles.brand}>
+            <span className="tabular-nums">{userRole === "praktikan" ? userNim : "SisPrakAI"}</span>
+            <span className={styles.brandSub}>{roleText}</span>
+          </div>
 
-        <nav className={styles.sidebarContent}>
-          {navItems.map((item) => {
+          <div className={styles.navLinks}>
+            {navItems.map((item) => {
+              const isBaseRoute = item.href === "/asprakai" || item.href === "/praktikan" || item.href === "/dosen";
+              const isActive = isBaseRoute
+                ? pathname === item.href
+                : pathname === item.href || pathname.startsWith(item.href + "/");
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className={styles.islandActions}>
+            <button className={styles.logoutBtn} onClick={handleLogout} title="Logout">
+              <LogOut size={18} />
+            </button>
+            <button 
+              className={styles.mobileMenuBtn} 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      {/* MOBILE FULLSCREEN OVERLAY */}
+      <div className={`${styles.mobileOverlay} ${isMobileMenuOpen ? styles.mobileOverlayOpen : ""}`}>
+        <div className={styles.mobileNavLinks}>
+          {navItems.map((item, index) => {
             const isBaseRoute = item.href === "/asprakai" || item.href === "/praktikan" || item.href === "/dosen";
             const isActive = isBaseRoute
               ? pathname === item.href
@@ -76,42 +110,23 @@ export function DashboardLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
-                onClick={() => setIsSidebarOpen(false)}
+                className={`${styles.mobileNavItem} ${isActive ? styles.mobileNavItemActive : ""}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={{ transitionDelay: `${index * 50}ms` }}
               >
                 {item.icon}
                 <span>{item.label}</span>
               </Link>
             );
           })}
-        </nav>
-
-        <div className={styles.sidebarFooter}>
-          <button onClick={handleLogout} className={styles.logoutBtn}>
-            <LogOut size={20} />
-            <span>Logout</span>
-          </button>
         </div>
-      </aside>
+      </div>
 
+      {/* MAIN CONTENT */}
       <main className={styles.mainContent}>
         <header className={styles.topbar}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
-            <button className={styles.mobileMenuBtn} onClick={() => setIsSidebarOpen(true)}>
-              <Menu size={24} />
-            </button>
-            <h1 className={styles.pageTitle}>{title}</h1>
-          </div>
-          <div className={styles.topbarActions}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--color-text-secondary)" }}>
-              <User size={20} />
-              <span style={{ fontSize: "var(--text-body-medium)", fontWeight: 500 }}>
-                {userRole === "asprak" ? "Asisten Praktikum" : userRole === "dosen" ? "Dosen" : "Praktikan"}
-              </span>
-            </div>
-          </div>
+          <h1 className={styles.pageTitle}>{title}</h1>
         </header>
-
         <div className={styles.contentArea}>{children}</div>
       </main>
     </div>
