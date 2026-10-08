@@ -93,6 +93,24 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
     }
   };
 
+  const getLatenessStatus = (submittedAt: string | undefined | null, deadline: string | undefined | null) => {
+    if (!submittedAt) return null;
+    if (!deadline) return "Tepat waktu atau lebih awal";
+
+    const s = new Date(submittedAt).getTime();
+    const d = new Date(deadline).getTime();
+
+    if (s <= d) return "Tepat waktu atau lebih awal";
+    
+    const diffHours = (s - d) / (1000 * 60 * 60);
+    const diffDays = diffHours / 24;
+
+    if (diffDays <= 1) return "Terlambat ≤ 1 hari";
+    if (diffDays <= 3) return "Terlambat 2–3 hari";
+    if (diffDays <= 7) return "Terlambat 4–7 hari";
+    return "Terlambat > 7 hari";
+  };
+
   const currentPengaturan = pengaturan.find(p => p.pertemuan === activeTab);
   const now = new Date();
 
@@ -100,6 +118,9 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
     const isPastDeadline = batasWaktu ? new Date(batasWaktu) < now : false;
     const submission = pengumpulan.find(p => p.pertemuan === activeTab && p.jenis === jenis);
     const isEditing = editMode[jenis];
+
+    const latenessStatus = submission ? getLatenessStatus(submission.updated_at, batasWaktu) : null;
+    const isLateSubmission = latenessStatus && latenessStatus.includes("Terlambat");
 
     return (
       <div style={{ marginBottom: "32px" }}>
@@ -111,8 +132,8 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
             </div>
           </div>
           {submission && !isEditing && (
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--color-success)", fontSize: "13px", fontWeight: 600, background: "var(--color-success-light)", padding: "4px 12px", borderRadius: "20px" }}>
-              <CheckCircle2 size={16} /> Diserahkan
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isLateSubmission ? "var(--color-danger)" : "var(--color-success)", fontSize: "13px", fontWeight: 600, background: isLateSubmission ? "var(--color-danger-light)" : "var(--color-success-light)", padding: "4px 12px", borderRadius: "20px" }}>
+              <CheckCircle2 size={16} /> {isLateSubmission ? latenessStatus : "Diserahkan"}
             </div>
           )}
         </div>
@@ -141,75 +162,72 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
                 >
                   {downloading === submission.file_url ? <Loader2 size={14} className="spin" /> : "Unduh File"}
                 </button>
-                {!isPastDeadline && (
-                  <>
-                    <button 
-                      onClick={() => enableEdit(jenis)}
-                      style={{ padding: "6px 12px", background: "transparent", color: "var(--color-green)", border: "1px solid var(--color-green)", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}
-                    >
-                      <Edit2 size={14} /> Edit
-                    </button>
-                    <button 
-                      onClick={() => setDeleteConfirm({ pertemuan: activeTab, jenis, file_url: submission.file_url, tipe: submission.tipe })}
-                      disabled={loading === jenis + "_delete"}
-                      style={{ padding: "6px 12px", background: "transparent", color: "var(--color-danger)", border: "1px solid var(--color-danger)", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}
-                    >
-                      {loading === jenis + "_delete" ? <Loader2 size={14} className="spin" /> : <Trash2 size={14} />} Hapus
-                    </button>
-                  </>
-                )}
+                <>
+                  <button 
+                    onClick={() => enableEdit(jenis)}
+                    style={{ padding: "6px 12px", background: "transparent", color: "var(--color-green)", border: "1px solid var(--color-green)", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}
+                  >
+                    <Edit2 size={14} /> Edit
+                  </button>
+                  <button 
+                    onClick={() => setDeleteConfirm({ pertemuan: activeTab, jenis, file_url: submission.file_url, tipe: submission.tipe })}
+                    disabled={loading === jenis + "_delete"}
+                    style={{ padding: "6px 12px", background: "transparent", color: "var(--color-danger)", border: "1px solid var(--color-danger)", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}
+                  >
+                    {loading === jenis + "_delete" ? <Loader2 size={14} className="spin" /> : <Trash2 size={14} />} Hapus
+                  </button>
+                </>
               </div>
             </div>
           </div>
         ) : (
           <div>
-            {isPastDeadline ? (
-              <div style={{ padding: "16px", background: "var(--color-danger-light)", border: "1px dashed var(--color-danger)", borderRadius: "6px", color: "var(--color-danger)", textAlign: "center", fontSize: "14px" }}>
-                Tenggat waktu telah berlalu. Anda tidak dapat mengumpulkan tugas.
-              </div>
-            ) : (
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <div style={{ padding: "6px 12px", borderRadius: "20px", background: "var(--color-gold)", color: "black", fontSize: "13px", fontWeight: 500 }}>
-                      Upload File (.ipynb)
-                    </div>
+            <div>
+              {isPastDeadline && !isEditing && (
+                <div style={{ marginBottom: "16px", padding: "12px", background: "var(--color-danger-light)", border: "1px dashed var(--color-danger)", borderRadius: "6px", color: "var(--color-danger)", textAlign: "center", fontSize: "13px" }}>
+                  Tenggat waktu telah berlalu. Pengumpulan ini akan ditandai sebagai terlambat.
+                </div>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <div style={{ padding: "6px 12px", borderRadius: "20px", background: "var(--color-gold)", color: "black", fontSize: "13px", fontWeight: 500 }}>
+                    Upload File (.ipynb)
                   </div>
-                  {isEditing && (
-                    <button onClick={() => cancelEdit(jenis)} style={{ padding: "6px 12px", background: "transparent", border: "none", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13px", display: "flex", alignItems: "center", gap: "4px" }}>
-                      <X size={14} /> Batal Edit
-                    </button>
-                  )}
                 </div>
-
-                <div style={{ border: "1px dashed var(--color-border)", padding: "24px", borderRadius: "6px", textAlign: "center", background: "var(--color-surface-elevated)" }}>
-                  <input 
-                    type="file" 
-                    accept=".ipynb" 
-                    id={`file-${jenis}`} 
-                    style={{ display: "none" }}
-                    onChange={(e) => handleFileChange(jenis, e)}
-                  />
-                  <label htmlFor={`file-${jenis}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-                    <Upload size={32} color={fileMap[jenis] ? "var(--color-green)" : "var(--color-text-tertiary)"} />
-                    <span style={{ fontSize: "14px", fontWeight: 500, color: fileMap[jenis] ? "var(--color-green)" : "var(--color-text-primary)" }}>
-                      {fileMap[jenis] ? fileMap[jenis]!.name : "Pilih file .ipynb"}
-                    </span>
-                  </label>
-                </div>
-
-                <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
-                  <button 
-                    onClick={() => handleSubmit(activeTab, jenis)}
-                    disabled={loading === jenis || !fileMap[jenis]}
-                    style={{ padding: "8px 24px", background: "var(--color-green)", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px", opacity: (loading === jenis || !fileMap[jenis]) ? 0.6 : 1 }}
-                  >
-                    {loading === jenis ? <Loader2 size={16} className="spin" /> : <Upload size={16} />}
-                    {isEditing ? "Perbarui Pengumpulan" : "Kumpulkan"}
+                {isEditing && (
+                  <button onClick={() => cancelEdit(jenis)} style={{ padding: "6px 12px", background: "transparent", border: "none", color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "13px", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <X size={14} /> Batal Edit
                   </button>
-                </div>
+                )}
               </div>
-            )}
+
+              <div style={{ border: "1px dashed var(--color-border)", padding: "24px", borderRadius: "6px", textAlign: "center", background: "var(--color-surface-elevated)" }}>
+                <input 
+                  type="file" 
+                  accept=".ipynb" 
+                  id={`file-${jenis}`} 
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFileChange(jenis, e)}
+                />
+                <label htmlFor={`file-${jenis}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                  <Upload size={32} color={fileMap[jenis] ? "var(--color-green)" : "var(--color-text-tertiary)"} />
+                  <span style={{ fontSize: "14px", fontWeight: 500, color: fileMap[jenis] ? "var(--color-green)" : "var(--color-text-primary)" }}>
+                    {fileMap[jenis] ? fileMap[jenis]!.name : "Pilih file .ipynb"}
+                  </span>
+                </label>
+              </div>
+
+              <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
+                <button 
+                  onClick={() => handleSubmit(activeTab, jenis)}
+                  disabled={loading === jenis || !fileMap[jenis]}
+                  style={{ padding: "8px 24px", background: "var(--color-green)", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px", opacity: (loading === jenis || !fileMap[jenis]) ? 0.6 : 1 }}
+                >
+                  {loading === jenis ? <Loader2 size={16} className="spin" /> : <Upload size={16} />}
+                  {isEditing ? "Perbarui Pengumpulan" : "Kumpulkan"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
