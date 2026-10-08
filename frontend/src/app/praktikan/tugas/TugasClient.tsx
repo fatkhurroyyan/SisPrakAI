@@ -279,7 +279,6 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
             style={{
               padding: "8px 16px",
               whiteSpace: "nowrap",
-              border: "none",
               background: activeTab === pertemuan ? "var(--color-black)" : "var(--color-surface-sunken)",
               color: activeTab === pertemuan ? "var(--color-surface)" : "var(--color-text-secondary)",
               borderRadius: "20px",
