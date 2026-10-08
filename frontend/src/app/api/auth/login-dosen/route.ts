@@ -9,10 +9,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Kode dosen wajib diisi' }, { status: 400 });
     }
 
-    const dosenCodes = ["YSN", "DDS", "FTS"];
+    const dosenMap: Record<string, string> = {
+      "YSN": "Yuli Sun Hariyani, S.T., M.T., Ph.D.",
+      "DDS": "Dr. Duddy Soegiarto, S.T., M.T.",
+      "FTS": "Fitri Susanti, S.T., M.T.",
+      "AUP": "Prof. Agus Pratondo, S.T., M.T., Ph.D."
+    };
+    
     const kode = kode_dosen.toUpperCase();
 
-    if (!dosenCodes.includes(kode)) {
+    if (!dosenMap[kode]) {
       return NextResponse.json({ error: 'Kode dosen tidak valid' }, { status: 401 });
     }
 
@@ -20,7 +26,7 @@ export async function POST(request: Request) {
     await createSession({
       nim: kode,
       role: 'dosen',
-      nama: `Dosen ${kode}`
+      nama: dosenMap[kode]
     });
 
     return NextResponse.json({ 

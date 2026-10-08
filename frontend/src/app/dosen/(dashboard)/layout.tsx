@@ -32,11 +32,20 @@ export default async function DosenLayout({
     redirect("/");
   }
 
+  const dosenMap: Record<string, string> = {
+    "YSN": "Yuli Sun Hariyani, S.T., M.T., Ph.D.",
+    "DDS": "Dr. Duddy Soegiarto, S.T., M.T.",
+    "FTS": "Fitri Susanti, S.T., M.T.",
+    "AUP": "Prof. Agus Pratondo, S.T., M.T., Ph.D."
+  };
+
+  const displayName = dosenMap[session.nim] || session.nama;
+
   return (
     <DashboardLayout
       title="Dashboard Dosen"
       userRole="dosen"
-      userName={session.nama}
+      userName={displayName}
       userNim={session.nim}
       navItems={dosenNavItems}
     >
