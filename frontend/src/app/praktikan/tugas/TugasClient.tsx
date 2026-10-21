@@ -13,8 +13,18 @@ interface TugasClientProps {
 export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
+  const [isTabTransitioning, setIsTabTransitioning] = useState<boolean>(false);
   const [loading, setLoading] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
+
+  const handleTabChange = (pertemuan: number) => {
+    if (pertemuan === activeTab) return;
+    setIsTabTransitioning(true);
+    setActiveTab(pertemuan);
+    setTimeout(() => {
+      setIsTabTransitioning(false);
+    }, 200);
+  };
 
   // Form states for current tab
   const [fileMap, setFileMap] = useState<Record<string, File | null>>({});
@@ -275,7 +285,7 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
         {Array.from({ length: 12 }, (_, i) => i + 1).map((pertemuan) => (
           <button
             key={pertemuan}
-            onClick={() => setActiveTab(pertemuan)}
+            onClick={() => handleTabChange(pertemuan)}
             style={{
               padding: "8px 16px",
               whiteSpace: "nowrap",
@@ -284,7 +294,9 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
               borderRadius: "20px",
               cursor: "pointer",
               fontWeight: 600,
-              border: activeTab === pertemuan ? "1px solid var(--color-black)" : "1px solid transparent"
+              border: activeTab === pertemuan ? "1px solid var(--color-black)" : "1px solid transparent",
+              transition: "all 0.15s ease",
+              transform: activeTab === pertemuan ? "scale(1.02)" : "scale(1)"
             }}
           >
             Modul {pertemuan}
@@ -292,14 +304,22 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
         ))}
       </div>
 
-      <div>
-        {renderSection("HASIL_PRAKTIKUM", "Hasil Praktikum", currentPengaturan?.batas_hasil_praktikum)}
-        {renderSection("TUGAS_RUMAH", "Tugas Rumah", currentPengaturan?.batas_tugas_rumah)}
-      </div>
+      {isTabTransitioning ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          <div style={{ height: "130px", borderRadius: "20px", background: "linear-gradient(90deg, var(--color-surface-sunken) 0%, rgba(255,255,255,0.7) 50%, var(--color-surface-sunken) 100%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite" }} />
+          <div style={{ height: "130px", borderRadius: "20px", background: "linear-gradient(90deg, var(--color-surface-sunken) 0%, rgba(255,255,255,0.7) 50%, var(--color-surface-sunken) 100%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite" }} />
+        </div>
+      ) : (
+        <div>
+          {renderSection("HASIL_PRAKTIKUM", "Hasil Praktikum", currentPengaturan?.batas_hasil_praktikum)}
+          {renderSection("TUGAS_RUMAH", "Tugas Rumah", currentPengaturan?.batas_tugas_rumah)}
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{__html: `
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
       `}} />
     </div>
   );

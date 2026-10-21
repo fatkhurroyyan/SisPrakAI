@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, ChevronDown, Save, Loader2, CheckCircle, XCircle, RotateCcw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { getAbsensi, saveAbsensi, resetAbsensi } from "./actions";
+import { TableBodySkeleton } from "@/components/ui/TableSkeleton";
 
 type Kelas = {
   id: string;
@@ -390,11 +391,6 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
 
       {/* Tabel Absensi */}
       <div style={{ position: "relative", background: "var(--color-surface-elevated)", border: "1px solid var(--color-border)", borderRadius: "8px", overflowX: "auto", overflowY: "auto", minHeight: "200px", maxHeight: "calc(100vh - 300px)" }}>
-        {isLoading && (
-          <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}>
-            <Loader2 style={{ animation: "spin 1s linear infinite", width: "32px", height: "32px", color: "var(--color-gold)" }} />
-          </div>
-        )}
         <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "600px" }}>
           <thead style={{ background: "var(--color-black)", color: "var(--color-surface)", position: "sticky", top: 0, zIndex: 5 }}>
             <tr>
@@ -429,7 +425,9 @@ export default function KelasClient({ kelasList, mahasiswaList }: KelasClientPro
             </tr>
           </thead>
           <tbody>
-            {processedMahasiswa.length === 0 ? (
+            {isLoading ? (
+              <TableBodySkeleton rows={6} columns={4} />
+            ) : processedMahasiswa.length === 0 ? (
               <tr>
                 <td colSpan={4} style={{ padding: "24px", textAlign: "center", color: "var(--color-text-secondary)" }}>
                   {searchQuery ? "Tidak ada mahasiswa yang cocok dengan pencarian." : "Tidak ada mahasiswa di kelas ini."}

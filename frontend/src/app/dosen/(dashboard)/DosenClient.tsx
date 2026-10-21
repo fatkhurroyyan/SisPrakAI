@@ -5,6 +5,7 @@ import { Download, Search, ChevronUp, ChevronDown, FileSpreadsheet, FileText, Fi
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { TableBodySkeleton } from "@/components/ui/TableSkeleton";
 
 type Modul = { id: string; judul: string; };
 
@@ -46,6 +47,25 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
   // Nilai: "SEMUA", or modul_id
   const defaultSubView = type === "KEHADIRAN" ? "ORANG" : "SEMUA";
   const [activeSubView, setActiveSubView] = useState<string>(defaultSubView);
+  const [isSubTabTransitioning, setIsSubTabTransitioning] = useState<boolean>(false);
+
+  const handleClassChange = (cls: string) => {
+    if (cls === activeClass) return;
+    setIsSubTabTransitioning(true);
+    setActiveClass(cls);
+    setTimeout(() => {
+      setIsSubTabTransitioning(false);
+    }, 250);
+  };
+
+  const handleSubViewChange = (subView: string) => {
+    if (subView === activeSubView) return;
+    setIsSubTabTransitioning(true);
+    setActiveSubView(subView);
+    setTimeout(() => {
+      setIsSubTabTransitioning(false);
+    }, 250);
+  };
 
   const handleSort = (key: string) => {
     let direction: "asc" | "desc" = "asc";
@@ -297,6 +317,20 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
   };
 
   const renderTableBody = () => {
+    if (isSubTabTransitioning) {
+      const colCount =
+        type === "KEHADIRAN"
+          ? activeSubView === "ORANG"
+            ? 7
+            : activeSubView === "KELAS"
+            ? 2
+            : 5
+          : activeSubView === "SEMUA"
+          ? 3 + initialData.modulList.length
+          : 8;
+      return <TableBodySkeleton rows={6} columns={colCount} />;
+    }
+
     if (type === "KEHADIRAN" && activeSubView === "KELAS") {
       return (
         <>
@@ -416,7 +450,7 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
           {classes.map(cls => (
             <button
               key={cls}
-              onClick={() => setActiveClass(cls)}
+              onClick={() => handleClassChange(cls)}
               style={getFluidTabStyle(activeClass === cls)}
             >
               {cls}
@@ -430,17 +464,17 @@ export default function DosenClient({ initialData, type }: { initialData: DosenD
         <div style={{ display: "inline-flex", background: "var(--color-surface-sunken)", padding: "4px", borderRadius: "9999px", flexWrap: "wrap", gap: "4px" }}>
           {type === "KEHADIRAN" ? (
             <>
-              <button onClick={() => setActiveSubView("ORANG")} style={getFluidTabStyle(activeSubView === "ORANG")}>Rekap Per Orang</button>
-              <button onClick={() => setActiveSubView("KELAS")} style={getFluidTabStyle(activeSubView === "KELAS")}>Rekap Per Kelas</button>
+              <button onClick={() => handleSubViewChange("ORANG")} style={getFluidTabStyle(activeSubView === "ORANG")}>Rekap Per Orang</button>
+              <button onClick={() => handleSubViewChange("KELAS")} style={getFluidTabStyle(activeSubView === "KELAS")}>Rekap Per Kelas</button>
               {initialData.modulList.map((m, index) => (
-                <button key={m.id} onClick={() => setActiveSubView(m.id)} style={getFluidTabStyle(activeSubView === m.id)}>Modul {index + 1}</button>
+                <button key={m.id} onClick={() => handleSubViewChange(m.id)} style={getFluidTabStyle(activeSubView === m.id)}>Modul {index + 1}</button>
               ))}
             </>
           ) : (
             <>
-              <button onClick={() => setActiveSubView("SEMUA")} style={getFluidTabStyle(activeSubView === "SEMUA")}>Rekap Seluruh Modul</button>
+              <button onClick={() => handleSubViewChange("SEMUA")} style={getFluidTabStyle(activeSubView === "SEMUA")}>Rekap Seluruh Modul</button>
               {initialData.modulList.map((m, index) => (
-                <button key={m.id} onClick={() => setActiveSubView(m.id)} style={getFluidTabStyle(activeSubView === m.id)}>Modul {index + 1}</button>
+                <button key={m.id} onClick={() => handleSubViewChange(m.id)} style={getFluidTabStyle(activeSubView === m.id)}>Modul {index + 1}</button>
               ))}
             </>
           )}
@@ -470,6 +504,7 @@ const getFluidTabStyle = (isActive: boolean): React.CSSProperties => ({
   fontWeight: 600,
   fontSize: "13px",
   cursor: "pointer",
-  transition: "all 0.2s",
-  boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.05)" : "none"
+  transition: "all 0.18s cubic-bezier(0.4, 0, 0.2, 1)",
+  transform: isActive ? "scale(1.02)" : "scale(1)",
+  boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.08)" : "none"
 });

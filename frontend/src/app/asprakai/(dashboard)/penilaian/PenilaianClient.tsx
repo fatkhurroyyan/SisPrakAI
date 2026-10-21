@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Save, Loader2, CheckCircle, XCircle, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { getPenilaian, savePenilaian } from "./actions";
+import { TableBodySkeleton } from "@/components/ui/TableSkeleton";
 
 type Kelas = {
   id: string;
@@ -282,11 +283,6 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
 
       {/* Tabel Penilaian */}
       <div className="premium-table-wrapper" style={{ position: "relative", minHeight: "200px" }}>
-        {isLoading && (
-          <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}>
-            <Loader2 style={{ animation: "spin 1s linear infinite", width: "32px", height: "32px", color: "var(--color-gold)" }} />
-          </div>
-        )}
         <table className="premium-table">
           <thead>
             <tr>
@@ -336,7 +332,9 @@ export default function PenilaianClient({ kelasList, mahasiswaList }: PenilaianC
             </tr>
           </thead>
           <tbody>
-            {processedMahasiswa.length === 0 ? (
+            {isLoading ? (
+              <TableBodySkeleton rows={6} columns={8} />
+            ) : processedMahasiswa.length === 0 ? (
               <tr>
                 <td colSpan={8} style={{ padding: "24px", textAlign: "center", color: "var(--color-text-secondary)" }}>
                   {searchQuery ? "Tidak ada mahasiswa yang cocok dengan pencarian." : "Tidak ada mahasiswa di kelas ini."}

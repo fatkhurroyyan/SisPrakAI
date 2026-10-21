@@ -1,0 +1,140 @@
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-sunken) 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    var(--color-surface-sunken) 100%
+  );
+  background-size: 250% 100%;
+  animation: shimmerWave 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmerWave {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: none;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.titleSkeleton {
+  height: 32px;
+  width: 220px;
+  border-radius: 8px;
+}
+
+.actionControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.searchSkeleton {
+  height: 40px;
+  width: 240px;
+  border-radius: 8px;
+}
+
+.buttonSkeleton {
+  height: 40px;
+  width: 90px;
+  border-radius: 8px;
+}
+
+/* Tab Pills Skeleton */
+.pillGroup {
+  display: inline-flex;
+  background: var(--color-surface-sunken);
+  padding: 4px;
+  border-radius: 9999px;
+  gap: 4px;
+  width: fit-content;
+}
+
+.pillSkeleton {
+  height: 32px;
+  border-radius: 9999px;
+  background: var(--color-surface);
+}
+
+/* Table Skeleton */
+.tableWrapper {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px -10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  width: 100%;
+}
+
+.tableHeader {
+  display: flex;
+  background: var(--color-black);
+  padding: 16px;
+  gap: 16px;
+}
+
+.thSkeleton {
+  height: 16px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.tableRow {
+  display: flex;
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--color-surface-sunken);
+  gap: 16px;
+  align-items: center;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tdCell {
+  height: 18px;
+  border-radius: 4px;
+}
+
+/* In-table Row Skeleton for tbody injection */
+.bodyRow {
+  border-bottom: 1px solid var(--color-surface-sunken);
+  padding: 16px;
+}
+
+.bodyCell {
+  height: 18px;
+  margin: 4px 0;
+}

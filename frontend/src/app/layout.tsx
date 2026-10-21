@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Sistem Praktikum Kecerdasan Buatan Telkom University",
 };
 
+import { NavigationProgressBar } from "@/components/ui/NavigationProgressBar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}>
       <body>
+        <NavigationProgressBar />
         {children}
       </body>
     </html>
