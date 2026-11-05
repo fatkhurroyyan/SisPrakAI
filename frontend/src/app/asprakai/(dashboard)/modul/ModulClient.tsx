@@ -125,15 +125,17 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return "";
     
+    // Konversi ke WIB (UTC+7)
+    const wib = new Date(d.getTime() + (7 * 60 * 60 * 1000));
     const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
     const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     
-    const dayName = days[d.getDay()];
-    const date = String(d.getDate()).padStart(2, '0');
-    const monthName = months[d.getMonth()];
-    const year = d.getFullYear();
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const dayName = days[wib.getUTCDay()];
+    const date = String(wib.getUTCDate()).padStart(2, '0');
+    const monthName = months[wib.getUTCMonth()];
+    const year = wib.getUTCFullYear();
+    const hours = String(wib.getUTCHours()).padStart(2, '0');
+    const minutes = String(wib.getUTCMinutes()).padStart(2, '0');
     
     return `${dayName}, ${date} ${monthName} ${year} ${hours}:${minutes}`;
   };
@@ -205,14 +207,21 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
     return <div style={{ padding: "var(--space-6)" }}>Belum ada data kelas.</div>;
   }
 
-  // Helper to convert ISO UTC string to local datetime-local format (YYYY-MM-DDThh:mm)
+  // Helper to convert ISO UTC string to WIB (UTC+7) datetime-local format (YYYY-MM-DDThh:mm)
   const toLocalDatetimeString = (isoString: string | null) => {
     if (!isoString) return "";
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return "";
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-    return localDate.toISOString().slice(0, 16);
+    const wibDate = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+    return wibDate.toISOString().slice(0, 16);
+  };
+
+  // Helper to convert WIB datetime-local input value (YYYY-MM-DDThh:mm) to ISO UTC string
+  const fromLocalDatetimeString = (localVal: string) => {
+    if (!localVal) return "";
+    const withSeconds = localVal.length === 16 ? `${localVal}:00` : localVal;
+    const parsed = new Date(`${withSeconds}+07:00`);
+    return isNaN(parsed.getTime()) ? "" : parsed.toISOString();
   };
 
   return (
@@ -371,7 +380,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                       <input 
                         type="datetime-local" 
                         value={toLocalDatetimeString(record.batas_hasil_praktikum)}
-                        onChange={(e) => handleChange(pertemuan, "batas_hasil_praktikum", e.target.value ? new Date(e.target.value).toISOString() : "")}
+                        onChange={(e) => handleChange(pertemuan, "batas_hasil_praktikum", fromLocalDatetimeString(e.target.value))}
                         style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-surface)", width: "100%", outline: "none", transition: "border-color 0.2s" }}
                         onFocus={(e) => e.target.style.borderColor = "var(--color-gold)"}
                         onBlur={(e) => e.target.style.borderColor = "var(--color-border)"}
@@ -381,7 +390,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                       <input 
                         type="datetime-local" 
                         value={toLocalDatetimeString(record.batas_tugas_rumah)}
-                        onChange={(e) => handleChange(pertemuan, "batas_tugas_rumah", e.target.value ? new Date(e.target.value).toISOString() : "")}
+                        onChange={(e) => handleChange(pertemuan, "batas_tugas_rumah", fromLocalDatetimeString(e.target.value))}
                         style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-surface)", width: "100%", outline: "none", transition: "border-color 0.2s" }}
                         onFocus={(e) => e.target.style.borderColor = "var(--color-gold)"}
                         onBlur={(e) => e.target.style.borderColor = "var(--color-border)"}

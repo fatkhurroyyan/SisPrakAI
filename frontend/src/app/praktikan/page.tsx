@@ -142,7 +142,7 @@ export default async function PraktikanDashboard() {
                           Modul {task.pertemuan} - {task.title}
                         </div>
                         <div style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                          Tenggat: {task.deadline.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
+                          Tenggat: {task.deadline.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Jakarta' })}
                           {task.isPast && <span style={{ color: "var(--color-danger)", marginLeft: "8px", fontWeight: 700 }}>(TERLAMBAT)</span>}
                         </div>
                       </div>

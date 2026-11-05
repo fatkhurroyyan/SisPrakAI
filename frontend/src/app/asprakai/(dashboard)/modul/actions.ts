@@ -2,6 +2,7 @@
 
 import { createAdminSupabaseClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function getAllTugasPengaturan() {
   const session = await getSession();
@@ -51,6 +52,10 @@ export async function saveTugasPengaturan(
     throw new Error(error.message);
   }
 
+  revalidatePath("/asprakai/modul");
+  revalidatePath("/praktikan");
+  revalidatePath("/praktikan/tugas");
+
   return { success: true };
 }
 
@@ -71,6 +76,10 @@ export async function resetTugasPengaturan(kelas_id: string, pertemuan: number) 
   if (error) {
     throw new Error(error.message);
   }
+
+  revalidatePath("/asprakai/modul");
+  revalidatePath("/praktikan");
+  revalidatePath("/praktikan/tugas");
 
   return { success: true };
 }

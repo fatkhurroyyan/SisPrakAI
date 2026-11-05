@@ -135,7 +135,7 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
           <div>
             <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>{title}</h3>
             <div style={{ fontSize: "13px", color: isPastDeadline ? "var(--color-error)" : "var(--color-text-secondary)", fontWeight: 500 }}>
-              Tenggat: {batasWaktu ? new Date(batasWaktu).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) : "Belum diatur"}
+              Tenggat: {batasWaktu ? new Date(batasWaktu).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Jakarta' }) : "Belum diatur"}
             </div>
           </div>
           {submission && !isEditing && (
@@ -158,7 +158,7 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
                       {submission.file_url.split('/').pop()}
                     </div>
                     <div style={{ fontSize: "13px", color: "var(--color-text-tertiary)" }}>
-                      Diserahkan pada {new Date(submission.updated_at).toLocaleString('id-ID')}
+                      Diserahkan pada {new Date(submission.updated_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
                     </div>
                   </div>
                 </div>
