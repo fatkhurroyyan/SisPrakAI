@@ -140,7 +140,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
 
   const exportCSV = () => {
     if (!submissionsData.length) return;
-    const headers = ["NIM", "Nama", "Hasil Praktikum", "Tugas Rumah"];
+    const headers = ["NIM", "Nama", "Latihan Praktikum", "Tugas Praktikum"];
     const rows = submissionsData.map(s => [
       s.mahasiswa.nim,
       s.mahasiswa.nama,
@@ -162,6 +162,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
   const downloadZip = async (jenis: "HASIL_PRAKTIKUM" | "TUGAS_RUMAH") => {
     if (!submissionsData.length) return;
     const key = jenis === "HASIL_PRAKTIKUM" ? "hp" : "tr";
+    const labelJenis = jenis === "HASIL_PRAKTIKUM" ? "LATIHAN_PRAKTIKUM" : "TUGAS_PRAKTIKUM";
     setIsZipping(prev => ({ ...prev, [key]: true }));
 
     try {
@@ -177,7 +178,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
             if (!res.ok) continue;
             const blob = await res.blob();
             // Naming format: NIM_NAMA_JENIS.ipynb
-            const fileName = `${s.mahasiswa.nim}_${s.mahasiswa.nama}_${jenis}.ipynb`;
+            const fileName = `${s.mahasiswa.nim}_${s.mahasiswa.nama}_${labelJenis}.ipynb`;
             zip.file(fileName, blob);
             hasFiles = true;
           } catch (e) {
@@ -189,7 +190,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
       if (hasFiles) {
         const content = await zip.generateAsync({ type: "blob" });
         const className = kelasList.find(k => k.id === activeClassId)?.nama || "Kelas";
-        saveAs(content, `${className}_Modul_${activeSubsPertemuan}_${jenis}.zip`);
+        saveAs(content, `${className}_Modul_${activeSubsPertemuan}_${labelJenis}.zip`);
       } else {
         setToast({ message: "Tidak ada file yang bisa diunduh", type: "error" });
       }
@@ -262,10 +263,10 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
             
             <div style={{ display: "flex", gap: "12px" }}>
               <button onClick={() => downloadZip("HASIL_PRAKTIKUM")} disabled={isZipping.hp} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", background: "var(--color-green)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.15)", transition: "all 0.2s" }}>
-                {isZipping.hp ? <Loader2 size={18} className="spin" /> : <Download size={18} />} ZIP Hasil Praktikum
+                {isZipping.hp ? <Loader2 size={18} className="spin" /> : <Download size={18} />} ZIP Latihan Praktikum
               </button>
               <button onClick={() => downloadZip("TUGAS_RUMAH")} disabled={isZipping.tr} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", background: "var(--color-green)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.15)", transition: "all 0.2s" }}>
-                {isZipping.tr ? <Loader2 size={18} className="spin" /> : <Download size={18} />} ZIP Tugas Rumah
+                {isZipping.tr ? <Loader2 size={18} className="spin" /> : <Download size={18} />} ZIP Tugas Praktikum
               </button>
               <button onClick={exportCSV} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 16px", background: "var(--color-surface-sunken)", border: "1px solid var(--color-border)", borderRadius: "6px", cursor: "pointer", fontWeight: 500 }}>
                 <Download size={16} /> Rekap CSV
@@ -284,8 +285,8 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                   <tr>
                     <th style={{ padding: "16px 24px" }}>NIM</th>
                     <th style={{ padding: "16px 24px" }}>Nama Praktikan</th>
-                    <th style={{ padding: "16px 24px" }}>Hasil Praktikum</th>
-                    <th style={{ padding: "16px 24px" }}>Tugas Rumah</th>
+                    <th style={{ padding: "16px 24px" }}>Latihan Praktikum</th>
+                    <th style={{ padding: "16px 24px" }}>Tugas Praktikum</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -300,7 +301,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                           <td data-label="NIM" style={{ padding: "16px 24px" }} className="tabular-nums">{s.mahasiswa.nim}</td>
                           <td data-label="Nama Praktikan" style={{ padding: "16px 24px", fontWeight: 600 }}>{s.mahasiswa.nama}</td>
                           
-                          <td data-label="Hasil Praktikum" style={{ padding: "16px 24px" }}>
+                          <td data-label="Latihan Praktikum" style={{ padding: "16px 24px" }}>
                             {!s.hasil_praktikum ? (
                               <div style={{ fontSize: "12px", color: "var(--color-danger)", fontWeight: 600 }}>Tidak mengumpulkan</div>
                             ) : (
@@ -318,7 +319,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                             )}
                           </td>
 
-                          <td data-label="Tugas Rumah" style={{ padding: "16px 24px" }}>
+                          <td data-label="Tugas Praktikum" style={{ padding: "16px 24px" }}>
                             {!s.tugas_rumah ? (
                               <div style={{ fontSize: "12px", color: "var(--color-danger)", fontWeight: 600 }}>Tidak mengumpulkan</div>
                             ) : (
@@ -351,8 +352,8 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
             <thead>
               <tr>
                 <th style={{ padding: "16px 24px", width: "100px" }}>Pertemuan</th>
-                <th style={{ padding: "16px 24px" }}>Tenggat Hasil Praktikum</th>
-                <th style={{ padding: "16px 24px" }}>Tenggat Tugas Rumah</th>
+                <th style={{ padding: "16px 24px" }}>Tenggat Latihan Praktikum</th>
+                <th style={{ padding: "16px 24px" }}>Tenggat Tugas Praktikum</th>
                 <th style={{ padding: "16px 24px", width: "250px", textAlign: "center" }}>Aksi</th>
               </tr>
             </thead>
@@ -366,7 +367,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                       Modul {pertemuan}
                       {isConfigured && <div style={{ fontSize: "12px", color: "var(--color-green)", marginTop: "6px" }}>• Ditugaskan</div>}
                     </td>
-                    <td data-label="Tenggat Hasil Praktikum" style={{ padding: "16px 24px" }}>
+                    <td data-label="Tenggat Latihan Praktikum" style={{ padding: "16px 24px" }}>
                       <input 
                         type="datetime-local" 
                         value={toLocalDatetimeString(record.batas_hasil_praktikum)}
@@ -376,7 +377,7 @@ export function ModulClient({ kelasList, allPengaturan }: ModulClientProps) {
                         onBlur={(e) => e.target.style.borderColor = "var(--color-border)"}
                       />
                     </td>
-                    <td data-label="Tenggat Tugas Rumah" style={{ padding: "16px 24px" }}>
+                    <td data-label="Tenggat Tugas Praktikum" style={{ padding: "16px 24px" }}>
                       <input 
                         type="datetime-local" 
                         value={toLocalDatetimeString(record.batas_tugas_rumah)}

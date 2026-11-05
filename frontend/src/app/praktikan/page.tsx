@@ -52,7 +52,7 @@ export default async function PraktikanDashboard() {
       const nowTime = new Date().getTime();
 
       for (const p of pengaturan) {
-        // Cek Hasil Praktikum
+        // Cek Latihan Praktikum
         if (p.batas_hasil_praktikum) {
           const isUploaded = pengumpulanSet.has(`${p.pertemuan}-HASIL_PRAKTIKUM`);
           if (!isUploaded) {
@@ -61,13 +61,13 @@ export default async function PraktikanDashboard() {
               pertemuan: p.pertemuan, 
               jenis: 'HASIL_PRAKTIKUM', 
               deadline: new Date(time), 
-              title: 'Hasil Praktikum',
+              title: 'Latihan Praktikum',
               isPast: time < nowTime 
             });
           }
         }
         
-        // Cek Tugas Rumah
+        // Cek Tugas Praktikum
         if (p.batas_tugas_rumah) {
           const isUploaded = pengumpulanSet.has(`${p.pertemuan}-TUGAS_RUMAH`);
           if (!isUploaded) {
@@ -76,7 +76,7 @@ export default async function PraktikanDashboard() {
               pertemuan: p.pertemuan, 
               jenis: 'TUGAS_RUMAH', 
               deadline: new Date(time), 
-              title: 'Tugas Rumah',
+              title: 'Tugas Praktikum',
               isPast: time < nowTime 
             });
           }

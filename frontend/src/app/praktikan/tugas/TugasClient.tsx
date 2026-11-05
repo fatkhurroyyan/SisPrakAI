@@ -258,7 +258,7 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
               <h3 style={{ margin: 0, fontSize: "18px" }}>Konfirmasi Hapus</h3>
             </div>
             <p style={{ marginBottom: "24px", color: "var(--color-text-secondary)", fontSize: "14px" }}>
-              Apakah Anda yakin ingin menghapus pengumpulan untuk <strong>{deleteConfirm.jenis.replace("_", " ")}</strong>? Data yang sudah dihapus harus diunggah ulang sebelum tenggat waktu.
+              Apakah Anda yakin ingin menghapus pengumpulan untuk <strong>{deleteConfirm.jenis === "HASIL_PRAKTIKUM" ? "Latihan Praktikum" : "Tugas Praktikum"}</strong>? Data yang sudah dihapus harus diunggah ulang sebelum tenggat waktu.
             </p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
               <button 
@@ -311,8 +311,8 @@ export function TugasClient({ pengaturan, pengumpulan }: TugasClientProps) {
         </div>
       ) : (
         <div>
-          {renderSection("HASIL_PRAKTIKUM", "Hasil Praktikum", currentPengaturan?.batas_hasil_praktikum)}
-          {renderSection("TUGAS_RUMAH", "Tugas Rumah", currentPengaturan?.batas_tugas_rumah)}
+          {renderSection("HASIL_PRAKTIKUM", "Latihan Praktikum", currentPengaturan?.batas_hasil_praktikum)}
+          {renderSection("TUGAS_RUMAH", "Tugas Praktikum", currentPengaturan?.batas_tugas_rumah)}
         </div>
       )}
 
